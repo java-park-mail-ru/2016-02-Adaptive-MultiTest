@@ -26,7 +26,7 @@ public class Sessions {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAuthenticatedUsers(@Context HttpServletRequest request) {
+    public Response getAuthenticatedUser(@Context HttpServletRequest request) {
         String sessionId = request.getSession().getId();
         if (accountService.isAuthenticated(sessionId)) {
             String jsonString = "{ \"id\": \"" + accountService.getUserBySession(sessionId).getId() + "\" }";
