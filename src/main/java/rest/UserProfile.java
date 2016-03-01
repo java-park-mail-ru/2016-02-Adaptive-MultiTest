@@ -16,24 +16,26 @@ public class UserProfile {
     @NotNull
     private String email;
 
-    private long id;
+    private final long userId;
 
+    @SuppressWarnings("unused")
     public UserProfile() {
-        this.id = ID_GENETATOR.getAndIncrement();
+        this.userId = ID_GENETATOR.getAndIncrement();
         login = "";
         password = "";
         email = "";
     }
 
+    @SuppressWarnings("unused")
     public UserProfile(@NotNull String login, @NotNull String password) {
-        this.id = ID_GENETATOR.getAndIncrement();
+        this.userId = ID_GENETATOR.getAndIncrement();
         this.login = login;
         this.password = password;
         email = "";
     }
 
     public UserProfile(@NotNull String login, @NotNull String password, @NotNull String email) {
-        this.id = ID_GENETATOR.getAndIncrement();
+        this.userId = ID_GENETATOR.getAndIncrement();
         this.login = login;
         this.password = password;
         this.email = email;
@@ -57,8 +59,9 @@ public class UserProfile {
         this.password = password;
     }
 
-    public long getId() { return id; }
+    public long getId() { return userId; }
 
+    @NotNull
     public String getEmail() { return email; }
 
     public void setEmail(@NotNull String email) { this.email = email; }

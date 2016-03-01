@@ -1,9 +1,6 @@
 package rest;
 
 import main.AccountService;
-import org.eclipse.jetty.server.Authentication;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
@@ -12,7 +9,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collection;
 
 /**
  * Created by a.serebrennikova
@@ -20,7 +16,7 @@ import java.util.Collection;
 @Singleton
 @Path("/session")
 public class Sessions {
-    private AccountService accountService;
+    private final AccountService accountService;
 
     public Sessions(AccountService accountService) { this.accountService = accountService; }
 

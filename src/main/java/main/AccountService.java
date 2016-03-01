@@ -1,6 +1,5 @@
 package main;
 
-import org.eclipse.jetty.server.Authentication;
 import org.jetbrains.annotations.Nullable;
 import rest.UserProfile;
 
@@ -12,8 +11,8 @@ import java.util.Map;
  * @author a.serebrennikova
  */
 public class AccountService {
-    private Map<Long, UserProfile> users = new HashMap<>();
-    private Map<String, UserProfile> sessions = new HashMap<>();
+    private final Map<Long, UserProfile> users = new HashMap<>();
+    private final Map<String, UserProfile> sessions = new HashMap<>();
 
     public AccountService() {
         users.put(0L, new UserProfile("admin", "admin", "admin@admin"));
