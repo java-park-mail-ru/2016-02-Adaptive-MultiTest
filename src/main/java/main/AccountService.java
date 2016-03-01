@@ -80,4 +80,6 @@ public class AccountService {
         return (actualUser != null && actualUser.getPassword().equals(user.getPassword()));
     }
 
+    public void deleteSession(String sessionId) { sessions.remove(sessionId); }
+
 }

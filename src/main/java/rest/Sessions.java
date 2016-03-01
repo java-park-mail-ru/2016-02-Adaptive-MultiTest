@@ -50,4 +50,13 @@ public class Sessions {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
     }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response logOut(@Context HttpServletRequest request) {
+        String sessionId = request.getSession().getId();
+        accountService.deleteSession(sessionId);
+        return Response.status(Response.Status.OK).build();
+    }
+
 }
