@@ -1,7 +1,6 @@
 package rest;
 
 import main.AccountService;
-import org.eclipse.jetty.server.Authentication;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +17,7 @@ import java.util.Collection;
 @Singleton
 @Path("/user")
 public class Users {
-    private AccountService accountService;
+    private final AccountService accountService;
 
     public Users(AccountService accountService) {
         this.accountService = accountService;

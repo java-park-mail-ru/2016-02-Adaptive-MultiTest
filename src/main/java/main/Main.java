@@ -8,6 +8,7 @@ import org.glassfish.jersey.servlet.ServletContainer;
 /**
  * @author esin88
  */
+@SuppressWarnings("OverlyBroadThrowsClause")
 public class Main {
     public static void main(String[] args) throws Exception {
         int port = -1;
