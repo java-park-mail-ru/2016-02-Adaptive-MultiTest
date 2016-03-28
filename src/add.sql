@@ -1,0 +1,1 @@
+INSERT INTO User (login, email, password) VALUES("qwe", "qwe@qwe", "qweqwe");
