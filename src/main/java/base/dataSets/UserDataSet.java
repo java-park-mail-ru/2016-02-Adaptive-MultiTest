@@ -52,7 +52,4 @@ public class UserDataSet {
     public String getEmail() { return email; }
 
     public void setEmail(@NotNull String email) { this.email = email; }
-
-    // TODO
-    public static long getCurrentID() { return -1; }
 }

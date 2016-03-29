@@ -33,9 +33,9 @@ public class AccountServiceImpl implements AccountService{
         configuration.setProperty("hibernate.connection.username", "mtestuser");
         configuration.setProperty("hibernate.connection.password", "secret");
         configuration.setProperty("hibernate.show_sql", "true");
+        //configuration.setProperty("hibernate.hbm2ddl.auto", "create");
 
         sessionFactory = createSessionFactory(configuration);
-
     }
 
     @Override
@@ -88,7 +88,7 @@ public class AccountServiceImpl implements AccountService{
         try (Session session = sessionFactory.openSession()) {
             UserDataSetDAO dao = new UserDataSetDAO(session);
             dao.updateUser(updatedUser, userId);
-            return dao.getUser(userId).getId();
+            return userId;
         }
     }
 

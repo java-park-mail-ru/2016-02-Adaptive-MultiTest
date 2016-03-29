@@ -29,12 +29,11 @@ import main.Context;
 import org.junit.runners.MethodSorters;
 
 import static org.junit.Assert.assertEquals;
-
 /**
- * Created by a.serebrennikova
+ * Created by Sasha on 28.03.16.
  */
 @FixMethodOrder(MethodSorters.JVM)
-public class NonAuthorizedServletTest extends JerseyTest {
+public class AuthorizedServletTest extends JerseyTest {
     SessionFactory sessionFactory;
 
     @Override
@@ -75,7 +74,7 @@ public class NonAuthorizedServletTest extends JerseyTest {
 
         sessionFactory = createSessionFactory(configuration);
 
-        try (Session testSession = sessionFactory.openSession()) {
+        try(Session testSession = sessionFactory.openSession()) {
             UserDataSetDAO dao = new UserDataSetDAO(testSession);
             UserDataSet admin = new UserDataSet();
             admin.setLogin("admin");
@@ -87,6 +86,8 @@ public class NonAuthorizedServletTest extends JerseyTest {
             guest.setPassword("12345");
             dao.addUser(admin);
             dao.addUser(guest);
+
+            target("session").request().put(Entity.json(guest));
         }
     }
 
@@ -112,77 +113,69 @@ public class NonAuthorizedServletTest extends JerseyTest {
     }
 
     @Test
-    public void testSignUpUserExistsFail() {
-        final UserDataSet newUser = new UserDataSet();
-        newUser.setEmail("admin@admin");
-        newUser.setLogin("admin");
-        newUser.setPassword("123");
-        final Response actualResponse = target("user").request().put(Entity.json(newUser));
-        assertEquals(403, actualResponse.getStatus());
-    }
-
-    @Test
-    public void testSignUp() {
-        final UserDataSet newUser = new UserDataSet();
-        newUser.setEmail("test@test");
-        newUser.setLogin("test");
-        newUser.setPassword("testtest");
-        long newUserId;
-        try (Session testSession = sessionFactory.openSession()) {
-            Criteria criteria = testSession
-                    .createCriteria(UserDataSet.class)
-                    .setProjection(Projections.max("id"));
-            newUserId = (Long)criteria.uniqueResult() + 1;
-
-            final String actualJson = target("user").request().put(Entity.json(newUser), String.class);
-            final String expectedJson = "{ \"id\": \"" + newUserId + "\" }";
-            assertEquals(expectedJson, actualJson);
-        }
-
-        try (Session testSession = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(testSession);
-            UserDataSet user = dao.getUser(newUserId);
-            assertEquals("test@test", user.getEmail());
-            assertEquals("test", user.getLogin());
-            assertEquals("testtest", user.getPassword());
-        }
-    }
-
-    @Test
     public void testAuthorized() {
-        final Response actualResponse = target("session").request().get();
-        assertEquals(401, actualResponse.getStatus());
-    }
-
-    @Test
-    public void testSignInWrongUserFail() {
-        final UserDataSet user = new UserDataSet();
-        user.setLogin("admin");
-        user.setPassword("12345");
-        user.setEmail("");
-        final Response actualResponse = target("session").request().put(Entity.json(user));
-        assertEquals(400, actualResponse.getStatus());
-    }
-
-    @Test
-    public void testSignIn() {
-        final UserDataSet user = new UserDataSet();
-        user.setLogin("admin");
-        user.setPassword("admin");
-        user.setEmail("");
-        final String actualJson = target("session").request().put(Entity.json(user), String.class);
-        final String expectedJson = "{ \"id\": \"1\" }";
+        final String actualJson = target("session").request().get(String.class);
+        final String expectedJson = "{ \"id\": \"2\" }";
         assertEquals(expectedJson, actualJson);
     }
 
     @Test
     public void testUpdateForeignUserFail() {
-        final UserDataSet updatedUser = new UserDataSet();
-        updatedUser.setLogin("agmin");
-        updatedUser.setPassword("12345");
+        UserDataSet updatedUser = new UserDataSet();
         updatedUser.setEmail("adm@adm");
+        updatedUser.setLogin("adm");
+        updatedUser.setPassword("123");
         final Response actualResponse = target("user").path("1").request().post(Entity.json(updatedUser));
         assertEquals(403, actualResponse.getStatus());
+    }
+
+    @Test
+    public void testUpdateUserEmailLoginExistsFail() {
+        UserDataSet updatedUser = new UserDataSet();
+        updatedUser.setEmail("admin@admin");
+        updatedUser.setLogin("admin");
+        updatedUser.setPassword("1234");
+        final String actualJson = target("user").path("2").request().post(Entity.json(updatedUser), String.class);
+        final String expectedJson = "{ \"id\": \"2\" }";
+        assertEquals(expectedJson, actualJson);
+
+        try(Session testSession = sessionFactory.openSession()) {
+            UserDataSetDAO dao = new UserDataSetDAO(testSession);
+            UserDataSet user = dao.getUser(2);
+            assertEquals("guest@guest", user.getEmail());
+            assertEquals("guest", user.getLogin());
+            assertEquals("1234", user.getPassword());
+        }
+    }
+
+    @Test
+    public void testUpdateUser() {
+        UserDataSet updatedUser = new UserDataSet();
+        updatedUser.setEmail("g@g");
+        updatedUser.setLogin("gue");
+        updatedUser.setPassword("123");
+
+        final String actualJson = target("user").path("2").request().post(Entity.json(updatedUser), String.class);
+        final String expectedJson = "{ \"id\": \"2\" }";
+        assertEquals(expectedJson, actualJson);
+
+        try (Session testSession = sessionFactory.openSession()) {
+            UserDataSetDAO dao = new UserDataSetDAO(testSession);
+            UserDataSet user = dao.getUser(2);
+            assertEquals("g@g", user.getEmail());
+            assertEquals("gue", user.getLogin());
+            assertEquals("123", user.getPassword());
+        }
+    }
+
+    @Test
+    public void testLogOut() {
+        final String actualJson = target("session").request().delete(String.class);
+        final String expectedJson = "{}";
+        assertEquals(expectedJson, actualJson);
+
+        final Response actualResponse = target("session").request().get();
+        assertEquals(401, actualResponse.getStatus());
     }
 
     @Test
@@ -190,6 +183,20 @@ public class NonAuthorizedServletTest extends JerseyTest {
         final Response actualResponse = target("user").path("1").request().delete();
         assertEquals(403, actualResponse.getStatus());
     }
+
+    @Test
+    public void testDeleteUser() {
+        final String actualJson = target("user").path("2").request().delete(String.class);
+        final String expectedJson = "{ \"id\": \"2\" }";
+        assertEquals(expectedJson, actualJson);
+
+        try(Session testSession = sessionFactory.openSession()) {
+            UserDataSetDAO dao = new UserDataSetDAO(testSession);
+            UserDataSet user = dao.getUser(2);
+            assertEquals(null, user);
+        }
+    }
+
 
     private static SessionFactory createSessionFactory(Configuration configuration) {
         StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
