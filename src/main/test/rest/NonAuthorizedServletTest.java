@@ -93,8 +93,8 @@ public class NonAuthorizedServletTest extends JerseyTest {
     @Test
     public void testGetAllUsers() {
         final String actualJson = target("user").request().get(String.class);
-        final String expectedJson = "[{\"email\":\"admin@admin\",\"login\":\"admin\",\"password\":\"admin\"}," +
-                "{\"email\":\"guest@guest\",\"login\":\"guest\",\"password\":\"12345\"}]";
+        final String expectedJson = "[{\"email\":\"admin@admin\",\"id\":1,\"login\":\"admin\",\"password\":\"admin\"}," +
+                "{\"email\":\"guest@guest\",\"id\":2,\"login\":\"guest\",\"password\":\"12345\"}]";
         assertEquals(expectedJson, actualJson);
     }
 

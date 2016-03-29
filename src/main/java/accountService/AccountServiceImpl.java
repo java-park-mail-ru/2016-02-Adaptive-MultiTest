@@ -33,7 +33,6 @@ public class AccountServiceImpl implements AccountService{
         configuration.setProperty("hibernate.connection.username", "mtestuser");
         configuration.setProperty("hibernate.connection.password", "secret");
         configuration.setProperty("hibernate.show_sql", "true");
-        //configuration.setProperty("hibernate.hbm2ddl.auto", "create");
 
         sessionFactory = createSessionFactory(configuration);
     }
@@ -117,6 +116,8 @@ public class AccountServiceImpl implements AccountService{
 
     @Override
     public void deleteSession(String sessionId) { sessions.remove(sessionId); }
+
+    public Map<String, UserDataSet> getSessions() { return sessions; }
 
     public void shutdown() {
         sessionFactory.close();

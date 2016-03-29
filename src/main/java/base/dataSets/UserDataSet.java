@@ -48,8 +48,29 @@ public class UserDataSet {
 
     public long getId() { return id; }
 
+    public void setId(long id) { this.id = id; }
+
     @NotNull
     public String getEmail() { return email; }
 
     public void setEmail(@NotNull String email) { this.email = email; }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+       // if (obj == null) return false;
+        //if (this.getClass() != obj.getClass()) return false;
+        UserDataSet other = (UserDataSet) obj;
+        if (this.id != other.getId()) return false;
+        if (!this.login.equals(other.getLogin())) return false;
+        if (!this.email.equals(other.getEmail())) return false;
+        if (!this.password.equals(other.getPassword())) return false;
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return 76+133*login.hashCode();
+    }
 }
