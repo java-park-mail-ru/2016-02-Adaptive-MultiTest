@@ -35,7 +35,7 @@ import static org.junit.Assert.assertEquals;
  */
 @FixMethodOrder(MethodSorters.JVM)
 public class NonAuthorizedServletTest extends JerseyTest {
-    SessionFactory sessionFactory;
+    private SessionFactory sessionFactory;
 
     @Override
     protected Application configure() {
@@ -43,15 +43,15 @@ public class NonAuthorizedServletTest extends JerseyTest {
         context.put(AccountService.class, new AccountServiceImpl());
 
         final ResourceConfig config = new ResourceConfig(Users.class, Sessions.class);
-        final HttpServletRequest request = mock(HttpServletRequest.class);
         final HttpSession session = mock(HttpSession.class);
+        final HttpServletRequest request = mock(HttpServletRequest.class);
 
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
                 bind(context);
-                bind(request).to(HttpServletRequest.class);
                 bind(session).to(HttpSession.class);
+                bind(request).to(HttpServletRequest.class);
                 when(request.getSession()).thenReturn(session);
                 when(session.getId()).thenReturn("session");
             }

@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * @author a.serebrennikova
  */
-@SuppressWarnings("OverlyBroadThrowsClause")
+@SuppressWarnings({"OverlyBroadThrowsClause", "WeakerAccess"})
 public class Main {
     public static void main(String[] args) throws Exception {
         int port = -1;
@@ -39,7 +39,7 @@ public class Main {
         final Context context = new Context();
         context.put(AccountService.class, new AccountServiceImpl());
 
-        Set<Class<?>> classes = new HashSet<Class<?>>();
+        Set<Class<?>> classes = new HashSet<>();
         classes.add(Users.class);
         classes.add(Sessions.class);
         final ResourceConfig config = new ResourceConfig(classes);

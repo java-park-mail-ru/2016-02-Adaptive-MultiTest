@@ -1,13 +1,13 @@
 package base;
 
 import base.dataSets.UserDataSet;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 /**
  * @author a.serebrennikova
  */
+@SuppressWarnings("SameParameterValue")
 public interface AccountService {
     List<UserDataSet> getAllUsers();
 
@@ -17,6 +17,7 @@ public interface AccountService {
 
     UserDataSet getUserByLogin(String login);
 
+    @SuppressWarnings("unused")
     UserDataSet getUserByEmail(String login);
 
     long updateUser(UserDataSet updatedUser, long userId);

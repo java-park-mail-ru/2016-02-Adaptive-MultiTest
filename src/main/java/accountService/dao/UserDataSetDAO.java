@@ -11,8 +11,9 @@ import java.util.List;
 /**
  * Created by Sasha on 27.03.16.
  */
+@SuppressWarnings("DefaultFileTemplate")
 public class UserDataSetDAO {
-    private Session session;
+    private final Session session;
 
     public UserDataSetDAO(Session session) {
         this.session = session;
@@ -20,6 +21,7 @@ public class UserDataSetDAO {
 
     public List<UserDataSet> getAllUsers() {
         Criteria criteria = session.createCriteria(UserDataSet.class);
+        //noinspection unchecked
         return (List<UserDataSet>) criteria.list();
     }
 

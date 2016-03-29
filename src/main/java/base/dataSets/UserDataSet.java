@@ -3,11 +3,11 @@ package base.dataSets;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 /**
  * Created by Sasha on 27.03.16.
  */
+@SuppressWarnings({"SameParameterValue", "DefaultFileTemplate"})
 @Entity
 @Table(name = "User")
 public class UserDataSet {
@@ -56,16 +56,12 @@ public class UserDataSet {
     public void setEmail(@NotNull String email) { this.email = email; }
 
     @Override
-    public boolean equals(Object obj)
-    {
-       // if (obj == null) return false;
-        //if (this.getClass() != obj.getClass()) return false;
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (this.getClass() != obj.getClass()) return false;
         UserDataSet other = (UserDataSet) obj;
-        if (this.id != other.getId()) return false;
-        if (!this.login.equals(other.getLogin())) return false;
-        if (!this.email.equals(other.getEmail())) return false;
-        if (!this.password.equals(other.getPassword())) return false;
-        return true;
+        return this.id == other.getId() && this.login.equals(other.getLogin()) && this.email.equals(other.getEmail())
+                && this.password.equals(other.getPassword());
     }
 
     @Override

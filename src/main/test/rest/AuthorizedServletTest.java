@@ -7,12 +7,10 @@ import base.dataSets.UserDataSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.criterion.Projections;
 import org.hibernate.service.ServiceRegistry;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -32,9 +30,10 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by Sasha on 28.03.16.
  */
+@SuppressWarnings("DefaultFileTemplate")
 @FixMethodOrder(MethodSorters.JVM)
 public class AuthorizedServletTest extends JerseyTest {
-    SessionFactory sessionFactory;
+    private SessionFactory sessionFactory;
 
     @Override
     protected Application configure() {

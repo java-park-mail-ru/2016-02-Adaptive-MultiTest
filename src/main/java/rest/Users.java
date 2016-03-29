@@ -1,18 +1,15 @@
 package rest;
 
-import accountService.dao.UserDataSetDAO;
 import base.AccountService;
 import base.dataSets.UserDataSet;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -40,15 +37,9 @@ public class Users {
         if(user == null){
             return Response.status(Response.Status.FORBIDDEN).build();
         }else {
-            StringBuilder jsonString = new StringBuilder();
-            jsonString.append( "{ \"id\": \"");
-            jsonString.append(user.getId());
-            jsonString.append("\",\"login\": \"");
-            jsonString.append(user.getLogin());
-            jsonString.append("\",\"email\": \"");
-            jsonString.append(user.getEmail());
-            jsonString.append("\" }");
-            return Response.status(Response.Status.OK).entity(jsonString.toString()).build();
+            String jsonString = "{ \"id\": \"" + user.getId() + "\",\"login\": \"" + user.getLogin()
+                    + "\",\"email\": \"" + user.getEmail() + "\" }";
+            return Response.status(Response.Status.OK).entity(jsonString).build();
         }
     }
 

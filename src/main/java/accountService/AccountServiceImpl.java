@@ -8,9 +8,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +19,7 @@ import java.util.Map;
 public class AccountServiceImpl implements AccountService{
     private final Map<String, UserDataSet> sessions = new HashMap<>();
 
-    private SessionFactory sessionFactory;
+    private final SessionFactory sessionFactory;
 
     public AccountServiceImpl() {
         Configuration configuration = new Configuration();
@@ -119,6 +117,7 @@ public class AccountServiceImpl implements AccountService{
 
     public Map<String, UserDataSet> getSessions() { return sessions; }
 
+    @SuppressWarnings("unused")
     public void shutdown() {
         sessionFactory.close();
     }

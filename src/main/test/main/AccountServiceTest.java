@@ -13,7 +13,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,13 +23,13 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by Sasha on 29.03.16.
  */
+@SuppressWarnings("DefaultFileTemplate")
 @FixMethodOrder(MethodSorters.JVM)
 public class AccountServiceTest {
     private AccountServiceImpl accountService;
-    SessionFactory sessionFactory;
-    List<UserDataSet> users;
-    UserDataSet admin;
-    UserDataSet guest;
+    private SessionFactory sessionFactory;
+    private UserDataSet admin;
+    private UserDataSet guest;
 
     @Before
     public void initialize(){
@@ -64,10 +63,6 @@ public class AccountServiceTest {
 
             dao.addUser(admin);
             dao.addUser(guest);
-
-            users = new LinkedList<>();
-            users.add(admin);
-            users.add(guest);
         }
     }
 
