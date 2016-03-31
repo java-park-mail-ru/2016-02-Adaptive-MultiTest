@@ -1,8 +1,9 @@
 package rest;
 
-import main.AccountService;
+import base.AccountService;
+import base.dataSets.UserDataSet;
 
-import javax.inject.Singleton;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -13,16 +14,15 @@ import javax.ws.rs.core.Response;
 /**
  * Created by a.serebrennikova
  */
-@Singleton
 @Path("/session")
 public class Sessions {
-    private final AccountService accountService;
-
-    public Sessions(AccountService accountService) { this.accountService = accountService; }
+    @Inject
+    private main.Context context;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAuthenticatedUser(@Context HttpServletRequest request) {
+        final AccountService accountService = context.get(AccountService.class);
         String sessionId = request.getSession().getId();
         if (accountService.isAuthenticated(sessionId)) {
             String jsonString = "{ \"id\": \"" + accountService.getUserBySession(sessionId).getId() + "\" }";
@@ -32,11 +32,12 @@ public class Sessions {
         }
     }
 
-    @POST
+    @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response authenticate(UserProfile user, @Context HttpServletRequest request, @Context HttpHeaders headers) {
-        UserProfile actualUser = accountService.getUserByLogin(user.getLogin());
+    public Response authenticate(UserDataSet user, @Context HttpServletRequest request, @Context HttpHeaders headers) {
+        final AccountService accountService = context.get(AccountService.class);
+        UserDataSet actualUser = accountService.getUserByLogin(user.getLogin());
         if (actualUser != null && accountService.isValidUser(user)) {
             String sessionId = request.getSession().getId();
             accountService.addSession(sessionId, actualUser);
@@ -50,9 +51,11 @@ public class Sessions {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     public Response logOut(@Context HttpServletRequest request) {
+        final AccountService accountService = context.get(AccountService.class);
         String sessionId = request.getSession().getId();
         accountService.deleteSession(sessionId);
-        return Response.status(Response.Status.OK).build();
+        String jsonString = "{}";
+        return Response.status(Response.Status.OK).entity(jsonString).build();
     }
 
 }

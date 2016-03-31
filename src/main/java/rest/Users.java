@@ -1,76 +1,80 @@
 package rest;
 
-import main.AccountService;
+import base.AccountService;
+import base.dataSets.UserDataSet;
 
-import javax.inject.Singleton;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by a.serebrennikova
  */
-@Singleton
 @Path("/user")
 public class Users {
-    private final AccountService accountService;
-
-    public Users(AccountService accountService) {
-        this.accountService = accountService;
-    }
+    @Inject
+    private main.Context context;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllUsers() {
-        final Collection<UserProfile> allUsers = accountService.getAllUsers();
-        return Response.status(Response.Status.OK).entity(allUsers.toArray(new UserProfile[allUsers.size()])).build();
+        final AccountService accountService = context.get(AccountService.class);
+        final List<UserDataSet> allUsers = accountService.getAllUsers();
+        return Response.status(Response.Status.OK).entity(allUsers.toArray(new UserDataSet[allUsers.size()])).build();
     }
 
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserById(@PathParam("id") long id) {
-        final UserProfile user = accountService.getUser(id);
+        final AccountService accountService = context.get(AccountService.class);
+        final UserDataSet user = accountService.getUser(id);
         if(user == null){
             return Response.status(Response.Status.FORBIDDEN).build();
         }else {
-            return Response.status(Response.Status.OK).entity(user).build();
+            String jsonString = "{ \"id\": \"" + user.getId() + "\",\"login\": \"" + user.getLogin()
+                    + "\",\"email\": \"" + user.getEmail() + "\" }";
+            return Response.status(Response.Status.OK).entity(jsonString).build();
         }
     }
 
-    @POST
+    @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createUser(UserProfile user, @Context HttpHeaders headers){
-        if(accountService.addUser(user)){
-            String jsonString = "{ \"id\": \"" + user.getId() + "\" }";
+    public Response createUser(UserDataSet user, @Context HttpHeaders headers){
+        final AccountService accountService = context.get(AccountService.class);
+        long id = accountService.addUser(user);
+        if(id != -1){
+            String jsonString = "{ \"id\": \"" + id + "\" }";
             return Response.status(Response.Status.OK).entity(jsonString).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
     }
 
-    @PUT
+    @POST
     @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateUser(@PathParam("id") long id, UserProfile updatedUser,
+    public Response updateUser(@PathParam("id") long id, UserDataSet updatedUser,
                                @Context HttpHeaders headers, @Context HttpServletRequest request) {
-        final UserProfile userToUpdate = accountService.getUser(id);
+        final AccountService accountService = context.get(AccountService.class);
+        final UserDataSet user = accountService.getUser(id);
         String sessionId = request.getSession().getId();
-        UserProfile activeUser = accountService.getUserBySession(sessionId);
+        UserDataSet activeUser = accountService.getUserBySession(sessionId);
 
-        if(userToUpdate == null){
+        if(user == null){
             return Response.status(Response.Status.FORBIDDEN).build();
-        } else if (!userToUpdate.getLogin().equals(activeUser.getLogin())){
+        } else if (activeUser == null || id != activeUser.getId()){
             String jsonString = "{ \"status\": \"403\", \"message\": \"Чужой юзер\" }";
             return Response.status(Response.Status.FORBIDDEN).entity(jsonString).build();
         }else {
-            accountService.updateUser(userToUpdate, updatedUser);
+            accountService.updateUser(updatedUser, id);
             String jsonString = "{ \"id\": \"" + id + "\" }";
             return Response.status(Response.Status.OK).entity(jsonString).build();
         }
@@ -80,18 +84,19 @@ public class Users {
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteUser(@PathParam("id") long id, @Context HttpServletRequest request) {
-        final UserProfile userToDelete = accountService.getUser(id);
+        final AccountService accountService = context.get(AccountService.class);
+        final UserDataSet user = accountService.getUser(id);
         String sessionId = request.getSession().getId();
-        UserProfile activeUser = accountService.getUserBySession(sessionId);
+        UserDataSet activeUser = accountService.getUserBySession(sessionId);
 
-        if(userToDelete == null) {
+        if(user == null) {
             return Response.status(Response.Status.FORBIDDEN).build();
-        } else if (!userToDelete.getLogin().equals(activeUser.getLogin())){
+        } else if (activeUser == null || id != activeUser.getId()){
             String jsonString = "{ \"status\": \"403\", \"message\": \"Чужой юзер\" }";
             return Response.status(Response.Status.FORBIDDEN).entity(jsonString).build();
         } else {
-            accountService.deleteUser(userToDelete);
-            String jsonString = "{ \"id\": \"" + userToDelete.getId() + "\" }";
+            accountService.deleteUser(id);
+            String jsonString = "{ \"id\": \"" + id + "\" }";
             return Response.status(Response.Status.OK).entity(jsonString).build();
         }
     }
