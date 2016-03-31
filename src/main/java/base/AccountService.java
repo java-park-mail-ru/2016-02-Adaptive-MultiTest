@@ -7,7 +7,6 @@ import java.util.List;
 /**
  * @author a.serebrennikova
  */
-@SuppressWarnings("SameParameterValue")
 public interface AccountService {
     List<UserDataSet> getAllUsers();
 

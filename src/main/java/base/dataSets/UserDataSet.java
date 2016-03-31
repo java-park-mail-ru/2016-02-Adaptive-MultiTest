@@ -7,7 +7,7 @@ import javax.persistence.*;
 /**
  * Created by Sasha on 27.03.16.
  */
-@SuppressWarnings({"SameParameterValue", "DefaultFileTemplate"})
+@SuppressWarnings({"DefaultFileTemplate"})
 @Entity
 @Table(name = "User")
 public class UserDataSet {
@@ -25,6 +25,7 @@ public class UserDataSet {
     @Column(name="email")
     private String email;
 
+    @SuppressWarnings("RedundantNoArgConstructor")
     public UserDataSet() {
     }
 
@@ -55,13 +56,17 @@ public class UserDataSet {
 
     public void setEmail(@NotNull String email) { this.email = email; }
 
+    @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean equals(Object obj) {
         if (obj == null) return false;
         if (this.getClass() != obj.getClass()) return false;
-        UserDataSet other = (UserDataSet) obj;
-        return this.id == other.getId() && this.login.equals(other.getLogin()) && this.email.equals(other.getEmail())
-                && this.password.equals(other.getPassword());
+        final UserDataSet other = (UserDataSet) obj;
+        if (this.id != other.id) return false;
+        if (!this.login.equals(other.login)) return false;
+        if (!this.email.equals(other.email)) return false;
+        if (!this.password.equals(other.password)) return false;
+        return true;
     }
 
     @Override

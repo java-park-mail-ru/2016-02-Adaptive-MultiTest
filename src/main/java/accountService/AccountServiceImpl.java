@@ -3,6 +3,7 @@ package accountService;
 import accountService.dao.UserDataSetDAO;
 import base.AccountService;
 import base.dataSets.UserDataSet;
+import main.Config;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -22,15 +23,7 @@ public class AccountServiceImpl implements AccountService{
     private final SessionFactory sessionFactory;
 
     public AccountServiceImpl() {
-        Configuration configuration = new Configuration();
-        configuration.addAnnotatedClass(UserDataSet.class);
-
-        configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-        configuration.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
-        configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/MultiTest");
-        configuration.setProperty("hibernate.connection.username", "mtestuser");
-        configuration.setProperty("hibernate.connection.password", "secret");
-        configuration.setProperty("hibernate.show_sql", "true");
+        final Configuration configuration = Config.getHibernateConfiguration();
 
         sessionFactory = createSessionFactory(configuration);
     }
@@ -38,7 +31,7 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public List<UserDataSet> getAllUsers() {
         try (Session session = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(session);
+            final UserDataSetDAO dao = new UserDataSetDAO(session);
             return dao.getAllUsers();
         }
     }
@@ -46,7 +39,7 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public long addUser(UserDataSet user) {
         try ( Session session = sessionFactory.openSession() ) {
-            UserDataSetDAO dao = new UserDataSetDAO(session);
+            final UserDataSetDAO dao = new UserDataSetDAO(session);
             if (dao.getUserByLogin(user.getLogin()) != null || dao.getUserByEmail(user.getEmail()) != null) {
                 return -1;
             } else {
@@ -59,7 +52,7 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public UserDataSet getUser(long userId) {
         try (Session session = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(session);
+            final UserDataSetDAO dao = new UserDataSetDAO(session);
             return dao.getUser(userId);
         }
     }
@@ -67,7 +60,7 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public UserDataSet getUserByLogin(String login) {
         try (Session session = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(session);
+            final UserDataSetDAO dao = new UserDataSetDAO(session);
             return dao.getUserByLogin(login);
         }
     }
@@ -75,7 +68,7 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public UserDataSet getUserByEmail(String email) {
         try (Session session = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(session);
+            final UserDataSetDAO dao = new UserDataSetDAO(session);
             return dao.getUserByEmail(email);
         }
     }
@@ -83,7 +76,7 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public long updateUser(UserDataSet updatedUser, long userId) {
         try (Session session = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(session);
+            final UserDataSetDAO dao = new UserDataSetDAO(session);
             dao.updateUser(updatedUser, userId);
             return userId;
         }
@@ -92,7 +85,7 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public void deleteUser(long userId) {
         try (Session session = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(session);
+            final UserDataSetDAO dao = new UserDataSetDAO(session);
             dao.deleteUser(userId);
         }
     }
@@ -108,7 +101,7 @@ public class AccountServiceImpl implements AccountService{
 
     @Override
     public boolean isValidUser(UserDataSet user) {
-        UserDataSet actualUser = getUserByLogin(user.getLogin());
+        final UserDataSet actualUser = getUserByLogin(user.getLogin());
         return (actualUser != null && actualUser.getPassword().equals(user.getPassword()));
     }
 
@@ -117,15 +110,10 @@ public class AccountServiceImpl implements AccountService{
 
     public Map<String, UserDataSet> getSessions() { return sessions; }
 
-    @SuppressWarnings("unused")
-    public void shutdown() {
-        sessionFactory.close();
-    }
-
     private static SessionFactory createSessionFactory(Configuration configuration) {
-        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
+        final StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
         builder.applySettings(configuration.getProperties());
-        ServiceRegistry serviceRegistry = builder.build();
+        final ServiceRegistry serviceRegistry = builder.build();
         return configuration.buildSessionFactory(serviceRegistry);
     }
 

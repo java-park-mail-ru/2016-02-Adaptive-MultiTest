@@ -4,6 +4,8 @@ import accountService.AccountServiceImpl;
 import accountService.dao.UserDataSetDAO;
 import base.AccountService;
 import base.dataSets.UserDataSet;
+import main.Config;
+import main.Status;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -46,6 +48,7 @@ public class NonAuthorizedServletTest extends JerseyTest {
         final HttpSession session = mock(HttpSession.class);
         final HttpServletRequest request = mock(HttpServletRequest.class);
 
+        //noinspection AnonymousInnerClassMayBeStatic
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
@@ -62,26 +65,18 @@ public class NonAuthorizedServletTest extends JerseyTest {
 
     @Before
     public void initialize() {
-        Configuration configuration = new Configuration();
-        configuration.addAnnotatedClass(UserDataSet.class);
-
-        configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-        configuration.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
-        configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/MultiTest");
-        configuration.setProperty("hibernate.connection.username", "mtestuser");
-        configuration.setProperty("hibernate.connection.password", "secret");
-        configuration.setProperty("hibernate.show_sql", "true");
+        final Configuration configuration = Config.getHibernateConfiguration();
         configuration.setProperty("hibernate.hbm2ddl.auto", "create");
 
         sessionFactory = createSessionFactory(configuration);
 
         try (Session testSession = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(testSession);
-            UserDataSet admin = new UserDataSet();
+            final UserDataSetDAO dao = new UserDataSetDAO(testSession);
+            final UserDataSet admin = new UserDataSet();
             admin.setLogin("admin");
             admin.setEmail("admin@admin");
             admin.setPassword("admin");
-            UserDataSet guest = new UserDataSet();
+            final UserDataSet guest = new UserDataSet();
             guest.setLogin("guest");
             guest.setEmail("guest@guest");
             guest.setPassword("12345");
@@ -101,7 +96,7 @@ public class NonAuthorizedServletTest extends JerseyTest {
     @Test
     public void testGetNonExistentUserFail() {
         final Response actualResponse = target("user").path("-1").request().get();
-        assertEquals(403, actualResponse.getStatus());
+        assertEquals(Status.FORBIDDEN, actualResponse.getStatus());
     }
 
     @Test
@@ -118,7 +113,7 @@ public class NonAuthorizedServletTest extends JerseyTest {
         newUser.setLogin("admin");
         newUser.setPassword("123");
         final Response actualResponse = target("user").request().put(Entity.json(newUser));
-        assertEquals(403, actualResponse.getStatus());
+        assertEquals(Status.FORBIDDEN, actualResponse.getStatus());
     }
 
     @Test
@@ -127,9 +122,9 @@ public class NonAuthorizedServletTest extends JerseyTest {
         newUser.setEmail("test@test");
         newUser.setLogin("test");
         newUser.setPassword("testtest");
-        long newUserId;
+        final long newUserId;
         try (Session testSession = sessionFactory.openSession()) {
-            Criteria criteria = testSession
+            final Criteria criteria = testSession
                     .createCriteria(UserDataSet.class)
                     .setProjection(Projections.max("id"));
             newUserId = (Long)criteria.uniqueResult() + 1;
@@ -140,8 +135,8 @@ public class NonAuthorizedServletTest extends JerseyTest {
         }
 
         try (Session testSession = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(testSession);
-            UserDataSet user = dao.getUser(newUserId);
+            final UserDataSetDAO dao = new UserDataSetDAO(testSession);
+            final UserDataSet user = dao.getUser(newUserId);
             assertEquals("test@test", user.getEmail());
             assertEquals("test", user.getLogin());
             assertEquals("testtest", user.getPassword());
@@ -151,7 +146,7 @@ public class NonAuthorizedServletTest extends JerseyTest {
     @Test
     public void testAuthorized() {
         final Response actualResponse = target("session").request().get();
-        assertEquals(401, actualResponse.getStatus());
+        assertEquals(Status.UNAUTHORIZED, actualResponse.getStatus());
     }
 
     @Test
@@ -161,7 +156,7 @@ public class NonAuthorizedServletTest extends JerseyTest {
         user.setPassword("12345");
         user.setEmail("");
         final Response actualResponse = target("session").request().put(Entity.json(user));
-        assertEquals(400, actualResponse.getStatus());
+        assertEquals(Status.BAD_REQUEST, actualResponse.getStatus());
     }
 
     @Test
@@ -182,19 +177,19 @@ public class NonAuthorizedServletTest extends JerseyTest {
         updatedUser.setPassword("12345");
         updatedUser.setEmail("adm@adm");
         final Response actualResponse = target("user").path("1").request().post(Entity.json(updatedUser));
-        assertEquals(403, actualResponse.getStatus());
+        assertEquals(Status.FORBIDDEN, actualResponse.getStatus());
     }
 
     @Test
     public void testDeleteForeignUserFail() {
         final Response actualResponse = target("user").path("1").request().delete();
-        assertEquals(403, actualResponse.getStatus());
+        assertEquals(Status.FORBIDDEN, actualResponse.getStatus());
     }
 
     private static SessionFactory createSessionFactory(Configuration configuration) {
-        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
+        final StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
         builder.applySettings(configuration.getProperties());
-        ServiceRegistry serviceRegistry = builder.build();
+        final ServiceRegistry serviceRegistry = builder.build();
         return configuration.buildSessionFactory(serviceRegistry);
     }
 }

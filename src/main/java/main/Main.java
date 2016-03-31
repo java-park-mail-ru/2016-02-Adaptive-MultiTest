@@ -39,7 +39,7 @@ public class Main {
         final Context context = new Context();
         context.put(AccountService.class, new AccountServiceImpl());
 
-        Set<Class<?>> classes = new HashSet<>();
+        final Set<Class<?>> classes = new HashSet<>();
         classes.add(Users.class);
         classes.add(Sessions.class);
         final ResourceConfig config = new ResourceConfig(classes);
@@ -52,10 +52,10 @@ public class Main {
 
         final ServletHolder servletHolder = new ServletHolder(new ServletContainer(config));
 
-        ResourceHandler resourceHandler = new ResourceHandler();
+        final ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setResourceBase("public_html");
 
-        HandlerList handlers = new HandlerList();
+        final HandlerList handlers = new HandlerList();
         handlers.setHandlers(new Handler[]{resourceHandler, contextHandler});
 
         contextHandler.addServlet(servletHolder, "/*");

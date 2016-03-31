@@ -4,6 +4,8 @@ import accountService.AccountServiceImpl;
 import accountService.dao.UserDataSetDAO;
 import base.AccountService;
 import base.dataSets.UserDataSet;
+import main.Config;
+import main.Status;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -35,6 +37,7 @@ import static org.junit.Assert.assertEquals;
 public class AuthorizedServletTest extends JerseyTest {
     private SessionFactory sessionFactory;
 
+    @SuppressWarnings("AnonymousInnerClassMayBeStatic")
     @Override
     protected Application configure() {
         final Context context = new Context();
@@ -44,6 +47,7 @@ public class AuthorizedServletTest extends JerseyTest {
         final HttpServletRequest request = mock(HttpServletRequest.class);
         final HttpSession session = mock(HttpSession.class);
 
+        //noinspection AnonymousInnerClassMayBeStatic
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
@@ -60,26 +64,18 @@ public class AuthorizedServletTest extends JerseyTest {
 
     @Before
     public void initialize() {
-        Configuration configuration = new Configuration();
-        configuration.addAnnotatedClass(UserDataSet.class);
-
-        configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-        configuration.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
-        configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/MultiTest");
-        configuration.setProperty("hibernate.connection.username", "mtestuser");
-        configuration.setProperty("hibernate.connection.password", "secret");
-        configuration.setProperty("hibernate.show_sql", "true");
+        final Configuration configuration = Config.getHibernateConfiguration();
         configuration.setProperty("hibernate.hbm2ddl.auto", "create");
 
         sessionFactory = createSessionFactory(configuration);
 
         try(Session testSession = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(testSession);
-            UserDataSet admin = new UserDataSet();
+            final UserDataSetDAO dao = new UserDataSetDAO(testSession);
+            final UserDataSet admin = new UserDataSet();
             admin.setLogin("admin");
             admin.setEmail("admin@admin");
             admin.setPassword("admin");
-            UserDataSet guest = new UserDataSet();
+            final UserDataSet guest = new UserDataSet();
             guest.setLogin("guest");
             guest.setEmail("guest@guest");
             guest.setPassword("12345");
@@ -101,7 +97,7 @@ public class AuthorizedServletTest extends JerseyTest {
     @Test
     public void testGetNonExistentUserFail() {
         final Response actualResponse = target("user").path("-1").request().get();
-        assertEquals(403, actualResponse.getStatus());
+        assertEquals(Status.FORBIDDEN, actualResponse.getStatus());
     }
 
     @Test
@@ -120,17 +116,17 @@ public class AuthorizedServletTest extends JerseyTest {
 
     @Test
     public void testUpdateForeignUserFail() {
-        UserDataSet updatedUser = new UserDataSet();
+        final UserDataSet updatedUser = new UserDataSet();
         updatedUser.setEmail("adm@adm");
         updatedUser.setLogin("adm");
         updatedUser.setPassword("123");
         final Response actualResponse = target("user").path("1").request().post(Entity.json(updatedUser));
-        assertEquals(403, actualResponse.getStatus());
+        assertEquals(Status.FORBIDDEN, actualResponse.getStatus());
     }
 
     @Test
-    public void testUpdateUserEmailLoginExistsFail() {
-        UserDataSet updatedUser = new UserDataSet();
+    public void testUpdateEmailLoginExistsFail() {
+        final UserDataSet updatedUser = new UserDataSet();
         updatedUser.setEmail("admin@admin");
         updatedUser.setLogin("admin");
         updatedUser.setPassword("1234");
@@ -139,8 +135,8 @@ public class AuthorizedServletTest extends JerseyTest {
         assertEquals(expectedJson, actualJson);
 
         try(Session testSession = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(testSession);
-            UserDataSet user = dao.getUser(2);
+            final UserDataSetDAO dao = new UserDataSetDAO(testSession);
+            final UserDataSet user = dao.getUser(2);
             assertEquals("guest@guest", user.getEmail());
             assertEquals("guest", user.getLogin());
             assertEquals("1234", user.getPassword());
@@ -149,7 +145,7 @@ public class AuthorizedServletTest extends JerseyTest {
 
     @Test
     public void testUpdateUser() {
-        UserDataSet updatedUser = new UserDataSet();
+        final UserDataSet updatedUser = new UserDataSet();
         updatedUser.setEmail("g@g");
         updatedUser.setLogin("gue");
         updatedUser.setPassword("123");
@@ -159,8 +155,8 @@ public class AuthorizedServletTest extends JerseyTest {
         assertEquals(expectedJson, actualJson);
 
         try (Session testSession = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(testSession);
-            UserDataSet user = dao.getUser(2);
+            final UserDataSetDAO dao = new UserDataSetDAO(testSession);
+            final UserDataSet user = dao.getUser(2);
             assertEquals("g@g", user.getEmail());
             assertEquals("gue", user.getLogin());
             assertEquals("123", user.getPassword());
@@ -174,13 +170,13 @@ public class AuthorizedServletTest extends JerseyTest {
         assertEquals(expectedJson, actualJson);
 
         final Response actualResponse = target("session").request().get();
-        assertEquals(401, actualResponse.getStatus());
+        assertEquals(Status.UNAUTHORIZED, actualResponse.getStatus());
     }
 
     @Test
     public void testDeleteForeignUserFail() {
         final Response actualResponse = target("user").path("1").request().delete();
-        assertEquals(403, actualResponse.getStatus());
+        assertEquals(Status.FORBIDDEN, actualResponse.getStatus());
     }
 
     @Test
@@ -190,16 +186,16 @@ public class AuthorizedServletTest extends JerseyTest {
         assertEquals(expectedJson, actualJson);
 
         try(Session testSession = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(testSession);
-            UserDataSet user = dao.getUser(2);
+            final UserDataSetDAO dao = new UserDataSetDAO(testSession);
+            final UserDataSet user = dao.getUser(2);
             assertEquals(null, user);
         }
     }
 
     private static SessionFactory createSessionFactory(Configuration configuration) {
-        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
+        final StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
         builder.applySettings(configuration.getProperties());
-        ServiceRegistry serviceRegistry = builder.build();
+        final ServiceRegistry serviceRegistry = builder.build();
         return configuration.buildSessionFactory(serviceRegistry);
     }
 }
