@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal">
+    <data-source name="MySQL - MultiTestTest@localhost" uuid="aa76c5a4-5e08-44eb-b171-f1bf17e5c0de">
+      <secret-storage>master_key</secret-storage>
+      <user-name>mtestuser</user-name>
+      <schema-pattern>MultiTestTest.*</schema-pattern>
+      <default-schemas>MultiTestTest.*</default-schemas>
+    </data-source>
+  </component>
+</project>

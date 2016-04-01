@@ -9,9 +9,11 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import testHelpers.DBFiller;
 
 import java.util.List;
 import java.util.Map;
@@ -26,36 +28,30 @@ import static org.junit.Assert.assertEquals;
 @SuppressWarnings("DefaultFileTemplate")
 @FixMethodOrder(MethodSorters.JVM)
 public class AccountServiceTest {
-    private AccountServiceImpl accountService;
-    private SessionFactory sessionFactory;
-    private UserDataSet admin;
-    private UserDataSet guest;
+    private static AccountServiceImpl accountService;
+    private static SessionFactory sessionFactory;
+    private static UserDataSet admin;
+    private static UserDataSet guest;
+    private static final String dbName = "MultiTestTest";
 
-    @Before
-    public void initialize(){
-        accountService = new AccountServiceImpl();
+    @BeforeClass
+    public static void setUp(){
+        accountService = new AccountServiceImpl(dbName);
 
-        final Configuration configuration = Config.getHibernateConfiguration();
-        configuration.setProperty("hibernate.hbm2ddl.auto", "create");
-
+        final Configuration configuration = Config.getHibernateConfiguration(dbName, true);
         sessionFactory = createSessionFactory(configuration);
+        DBFiller.fillDB(sessionFactory);
 
-        try(Session testSession = sessionFactory.openSession()) {
-            final UserDataSetDAO dao = new UserDataSetDAO(testSession);
-            admin = new UserDataSet();
-            admin.setLogin("admin");
-            admin.setEmail("admin@admin");
-            admin.setPassword("admin");
-            guest = new UserDataSet();
-            guest.setLogin("guest");
-            guest.setEmail("guest@guest");
-            guest.setPassword("12345");
-            dao.addUser(admin);
-            dao.addUser(guest);
-
-            dao.addUser(admin);
-            dao.addUser(guest);
-        }
+        admin = new UserDataSet();
+        admin.setId(1);
+        admin.setLogin("admin");
+        admin.setEmail("admin@admin");
+        admin.setPassword("admin");
+        guest = new UserDataSet();
+        guest.setId(2);
+        guest.setLogin("guest");
+        guest.setEmail("guest@guest");
+        guest.setPassword("12345");
     }
 
     @Test
@@ -63,8 +59,14 @@ public class AccountServiceTest {
         final List<UserDataSet> actualUsers= accountService.getAllUsers();
         final UserDataSet first = actualUsers.get(0);
         final UserDataSet second = actualUsers.get(1);
+
+        System.out.println(first.getEmail());
+        System.out.println(first.getLogin());
+        System.out.println(first.getPassword());
+
         assertEquals(admin, first);
         assertEquals(guest, second);
+        assertEquals(2, actualUsers.size());
     }
 
     @Test
@@ -124,17 +126,10 @@ public class AccountServiceTest {
             final UserDataSetDAO dao = new UserDataSetDAO(testSession);
             final UserDataSet user = dao.getUser(updatedUserId);
             assertEquals(updatedUser, user);
-        }
-    }
 
-    @Test
-    public void testDeleteUser() {
-        accountService.deleteUser(2);
-
-        try (Session testSession = sessionFactory.openSession()) {
-            final UserDataSetDAO dao = new UserDataSetDAO(testSession);
-            final UserDataSet user = dao.getUser(2);
-            assertEquals(null, user);
+            guest.setLogin("guestee");
+            guest.setEmail("guest@guestee");
+            guest.setPassword("1234567");
         }
     }
 
@@ -147,6 +142,7 @@ public class AccountServiceTest {
 
     @Test
     public void testIsAuthenticatedNonAuthorized() {
+        accountService.deleteSession("session");
         assertFalse(accountService.isAuthenticated("session"));
     }
 
@@ -182,9 +178,20 @@ public class AccountServiceTest {
     @Test
     public void testIsValidUserValid() {
         final UserDataSet validUser = new UserDataSet();
-        validUser.setLogin("guest");
-        validUser.setPassword("12345");
+        validUser.setLogin("guestee");
+        validUser.setPassword("1234567");
         assertTrue(accountService.isValidUser(validUser));
+    }
+
+    @Test
+    public void testDeleteUser() {
+        accountService.deleteUser(2);
+
+        try (Session testSession = sessionFactory.openSession()) {
+            final UserDataSetDAO dao = new UserDataSetDAO(testSession);
+            final UserDataSet user = dao.getUser(2);
+            assertEquals(null, user);
+        }
     }
 
     @Test

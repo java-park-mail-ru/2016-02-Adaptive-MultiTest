@@ -17,6 +17,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Projections;
 import org.hibernate.service.ServiceRegistry;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 
@@ -29,6 +30,7 @@ import javax.ws.rs.core.Response;
 
 import main.Context;
 import org.junit.runners.MethodSorters;
+import testHelpers.DBFiller;
 
 import static org.junit.Assert.assertEquals;
 
@@ -37,12 +39,13 @@ import static org.junit.Assert.assertEquals;
  */
 @FixMethodOrder(MethodSorters.JVM)
 public class NonAuthorizedServletTest extends JerseyTest {
-    private SessionFactory sessionFactory;
+    private static SessionFactory sessionFactory;
+    private static final String dbName = "MultiTestTest";
 
     @Override
     protected Application configure() {
         final Context context = new Context();
-        context.put(AccountService.class, new AccountServiceImpl());
+        context.put(AccountService.class, new AccountServiceImpl(dbName));
 
         final ResourceConfig config = new ResourceConfig(Users.class, Sessions.class);
         final HttpSession session = mock(HttpSession.class);
@@ -63,26 +66,11 @@ public class NonAuthorizedServletTest extends JerseyTest {
         return config;
     }
 
-    @Before
-    public void initialize() {
-        final Configuration configuration = Config.getHibernateConfiguration();
-        configuration.setProperty("hibernate.hbm2ddl.auto", "create");
-
+    @BeforeClass
+    public static void fillDB() {
+        final Configuration configuration = Config.getHibernateConfiguration(dbName, true);
         sessionFactory = createSessionFactory(configuration);
-
-        try (Session testSession = sessionFactory.openSession()) {
-            final UserDataSetDAO dao = new UserDataSetDAO(testSession);
-            final UserDataSet admin = new UserDataSet();
-            admin.setLogin("admin");
-            admin.setEmail("admin@admin");
-            admin.setPassword("admin");
-            final UserDataSet guest = new UserDataSet();
-            guest.setLogin("guest");
-            guest.setEmail("guest@guest");
-            guest.setPassword("12345");
-            dao.addUser(admin);
-            dao.addUser(guest);
-        }
+        DBFiller.fillDB(sessionFactory);
     }
 
     @Test

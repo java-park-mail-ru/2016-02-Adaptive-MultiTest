@@ -14,9 +14,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import org.junit.*;
 
 import static org.mockito.Mockito.*;
 
@@ -27,6 +25,7 @@ import javax.ws.rs.core.Response;
 
 import main.Context;
 import org.junit.runners.MethodSorters;
+import testHelpers.DBFiller;
 
 import static org.junit.Assert.assertEquals;
 /**
@@ -35,13 +34,16 @@ import static org.junit.Assert.assertEquals;
 @SuppressWarnings("DefaultFileTemplate")
 @FixMethodOrder(MethodSorters.JVM)
 public class AuthorizedServletTest extends JerseyTest {
-    private SessionFactory sessionFactory;
+    private static SessionFactory sessionFactory;
+    private static final String dbName = "MultiTestTest";
+    private Configuration configuration;
+    private static UserDataSet guest;
 
     @SuppressWarnings("AnonymousInnerClassMayBeStatic")
     @Override
     protected Application configure() {
         final Context context = new Context();
-        context.put(AccountService.class, new AccountServiceImpl());
+        context.put(AccountService.class, new AccountServiceImpl(dbName));
 
         final ResourceConfig config = new ResourceConfig(Users.class, Sessions.class);
         final HttpServletRequest request = mock(HttpServletRequest.class);
@@ -62,28 +64,21 @@ public class AuthorizedServletTest extends JerseyTest {
         return config;
     }
 
-    @Before
-    public void initialize() {
-        final Configuration configuration = Config.getHibernateConfiguration();
-        configuration.setProperty("hibernate.hbm2ddl.auto", "create");
-
+    @BeforeClass
+    public static void fillDB() {
+        final Configuration configuration = Config.getHibernateConfiguration(dbName, true);
         sessionFactory = createSessionFactory(configuration);
+        DBFiller.fillDB(sessionFactory);
 
-        try(Session testSession = sessionFactory.openSession()) {
-            final UserDataSetDAO dao = new UserDataSetDAO(testSession);
-            final UserDataSet admin = new UserDataSet();
-            admin.setLogin("admin");
-            admin.setEmail("admin@admin");
-            admin.setPassword("admin");
-            final UserDataSet guest = new UserDataSet();
-            guest.setLogin("guest");
-            guest.setEmail("guest@guest");
-            guest.setPassword("12345");
-            dao.addUser(admin);
-            dao.addUser(guest);
+        guest = new UserDataSet();
+        guest.setLogin("guest");
+        guest.setEmail("guest@guest");
+        guest.setPassword("12345");
+    }
 
-            target("session").request().put(Entity.json(guest));
-        }
+    @Before
+    public void guestSignIn() {
+        target("session").request().put(Entity.json(guest));
     }
 
     @Test
@@ -141,6 +136,8 @@ public class AuthorizedServletTest extends JerseyTest {
             assertEquals("guest", user.getLogin());
             assertEquals("1234", user.getPassword());
         }
+
+        guest.setPassword("1234");
     }
 
     @Test
@@ -161,6 +158,10 @@ public class AuthorizedServletTest extends JerseyTest {
             assertEquals("gue", user.getLogin());
             assertEquals("123", user.getPassword());
         }
+
+        guest.setEmail("g@g");
+        guest.setLogin("gue");
+        guest.setPassword("123");
     }
 
     @Test

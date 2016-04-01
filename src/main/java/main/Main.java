@@ -37,7 +37,7 @@ public class Main {
         final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api/", ServletContextHandler.SESSIONS);
 
         final Context context = new Context();
-        context.put(AccountService.class, new AccountServiceImpl());
+        context.put(AccountService.class, new AccountServiceImpl("MultiTest"));
 
         final Set<Class<?>> classes = new HashSet<>();
         classes.add(Users.class);
