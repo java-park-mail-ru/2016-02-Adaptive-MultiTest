@@ -4,11 +4,14 @@ import accountService.dao.UserDataSetDAO;
 import base.AccountService;
 import base.dataSets.UserDataSet;
 import main.Config;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,65 +31,115 @@ public class AccountServiceImpl implements AccountService{
         sessionFactory = createSessionFactory(configuration);
     }
 
+    @Nullable
     @Override
     public List<UserDataSet> getAllUsers() {
         try (Session session = sessionFactory.openSession()) {
-            final UserDataSetDAO dao = new UserDataSetDAO(session);
-            return dao.getAllUsers();
+            try{
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                return dao.getAllUsers();
+            } catch (HibernateException e) {
+                e.printStackTrace();
+            }
         }
+        return null;
     }
 
     @Override
     public long addUser(UserDataSet user) {
         try ( Session session = sessionFactory.openSession() ) {
-            final UserDataSetDAO dao = new UserDataSetDAO(session);
-            if (dao.getUserByLogin(user.getLogin()) != null || dao.getUserByEmail(user.getEmail()) != null) {
-                return -1;
-            } else {
+            if (getUserByEmail(user.getEmail()) != null || getUserByLogin(user.getLogin()) != null) return -1;
+            final Transaction trx = session.beginTransaction();
+            try {
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
                 dao.addUser(user);
-                return dao.getUserByLogin(user.getLogin()).getId();
+                trx.commit();
+                return user.getId();
+            } catch (HibernateException e) {
+                e.printStackTrace();
+                trx.rollback();
+                return -1;
             }
         }
     }
 
+    @Nullable
     @Override
     public UserDataSet getUser(long userId) {
         try (Session session = sessionFactory.openSession()) {
-            final UserDataSetDAO dao = new UserDataSetDAO(session);
-            return dao.getUser(userId);
+            final UserDataSet idUser;
+            try {
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                idUser = dao.getUser(userId);
+            } catch (HibernateException e) {
+                e.printStackTrace();
+                return null;
+            }
+            return idUser;
         }
     }
 
+    @Nullable
     @Override
     public UserDataSet getUserByLogin(String login) {
         try (Session session = sessionFactory.openSession()) {
-            final UserDataSetDAO dao = new UserDataSetDAO(session);
-            return dao.getUserByLogin(login);
+            final UserDataSet loginUser;
+            try {
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                loginUser = dao.getUserByLogin(login);
+            } catch (HibernateException e) {
+                e.printStackTrace();
+                return null;
+            }
+            return loginUser;
         }
     }
 
+    @Nullable
     @Override
     public UserDataSet getUserByEmail(String email) {
         try (Session session = sessionFactory.openSession()) {
-            final UserDataSetDAO dao = new UserDataSetDAO(session);
-            return dao.getUserByEmail(email);
+            final UserDataSet emailUser;
+            try {
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                emailUser = dao.getUserByEmail(email);
+            } catch (HibernateException e) {
+                e.printStackTrace();
+                return null;
+            }
+            return emailUser;
         }
     }
 
     @Override
     public long updateUser(UserDataSet updatedUser, long userId) {
         try (Session session = sessionFactory.openSession()) {
-            final UserDataSetDAO dao = new UserDataSetDAO(session);
-            dao.updateUser(updatedUser, userId);
-            return userId;
+            final Transaction trx = session.beginTransaction();
+            try {
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                dao.updateUser(updatedUser, userId);
+                trx.commit();
+                return userId;
+            } catch (HibernateException e) {
+                e.printStackTrace();
+                trx.rollback();
+                return  -1;
+            }
         }
     }
 
     @Override
     public void deleteUser(long userId) {
         try (Session session = sessionFactory.openSession()) {
-            final UserDataSetDAO dao = new UserDataSetDAO(session);
-            dao.deleteUser(userId);
+            final Transaction trx = session.beginTransaction();
+            try {
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                dao.deleteUser(userId);
+                trx.commit();
+            } catch (HibernateException e) {
+                e.printStackTrace();
+                trx.rollback();
+            }
         }
     }
 

@@ -12,11 +12,11 @@ public class DBFiller {
     public static void fillDB(SessionFactory sessionFactory) {
         try(Session testSession = sessionFactory.openSession()) {
             final UserDataSetDAO dao = new UserDataSetDAO(testSession);
-            UserDataSet admin = new UserDataSet();
+            final UserDataSet admin = new UserDataSet();
             admin.setLogin("admin");
             admin.setEmail("admin@admin");
             admin.setPassword("admin");
-            UserDataSet guest = new UserDataSet();
+            final UserDataSet guest = new UserDataSet();
             guest.setLogin("guest");
             guest.setEmail("guest@guest");
             guest.setPassword("12345");

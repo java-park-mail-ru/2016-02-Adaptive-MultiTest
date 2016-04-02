@@ -7,7 +7,7 @@ import javax.persistence.*;
 /**
  * Created by Sasha on 27.03.16.
  */
-@SuppressWarnings({"DefaultFileTemplate"})
+@SuppressWarnings({"DefaultFileTemplate", "EqualsAndHashcode"})
 @Entity
 @Table(name = "User")
 public class UserDataSet {
@@ -67,11 +67,5 @@ public class UserDataSet {
         if (!this.email.equals(other.email)) return false;
         if (!this.password.equals(other.password)) return false;
         return true;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return 76+133*login.hashCode();
     }
 }

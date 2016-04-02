@@ -8,7 +8,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -32,13 +31,13 @@ public class AccountServiceTest {
     private static SessionFactory sessionFactory;
     private static UserDataSet admin;
     private static UserDataSet guest;
-    private static final String dbName = "MultiTestTest";
+    private static final String DBNAME = "MultiTestTest";
 
     @BeforeClass
     public static void setUp(){
-        accountService = new AccountServiceImpl(dbName);
+        accountService = new AccountServiceImpl(DBNAME);
 
-        final Configuration configuration = Config.getHibernateConfiguration(dbName, true);
+        final Configuration configuration = Config.getHibernateConfiguration(DBNAME, true);
         sessionFactory = createSessionFactory(configuration);
         DBFiller.fillDB(sessionFactory);
 
@@ -57,16 +56,14 @@ public class AccountServiceTest {
     @Test
     public void testGetAllUsers() {
         final List<UserDataSet> actualUsers= accountService.getAllUsers();
+
+        assert actualUsers != null;
+        assertEquals(2, actualUsers.size());
+
         final UserDataSet first = actualUsers.get(0);
         final UserDataSet second = actualUsers.get(1);
-
-        System.out.println(first.getEmail());
-        System.out.println(first.getLogin());
-        System.out.println(first.getPassword());
-
         assertEquals(admin, first);
         assertEquals(guest, second);
-        assertEquals(2, actualUsers.size());
     }
 
     @Test

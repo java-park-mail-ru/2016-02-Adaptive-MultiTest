@@ -2,8 +2,8 @@ package accountService.dao;
 
 import base.dataSets.UserDataSet;
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 
 import java.util.List;
@@ -25,18 +25,15 @@ public class UserDataSetDAO {
         return (List<UserDataSet>) criteria.list();
     }
 
-    public UserDataSet getUser(long id) {
+    public UserDataSet getUser(long id) throws HibernateException {
         return session.get(UserDataSet.class, id);
     }
 
-    public void addUser(UserDataSet user) {
-        final Transaction trx = session.beginTransaction();
+    public void addUser(UserDataSet user) throws HibernateException {
         session.save(user);
-        trx.commit();
     }
 
-    public void updateUser(UserDataSet updatedUser, long userId) {
-        final Transaction trx = session.beginTransaction();
+    public void updateUser(UserDataSet updatedUser, long userId) throws HibernateException {
         final UserDataSet user = session.load(UserDataSet.class, userId);
         if (getUserByLogin(updatedUser.getLogin()) == null)
             user.setLogin(updatedUser.getLogin());
@@ -44,24 +41,21 @@ public class UserDataSetDAO {
             user.setEmail(updatedUser.getEmail());
         user.setPassword(updatedUser.getPassword());
         session.save(user);
-        trx.commit();
     }
 
-    public void deleteUser(long userId) {
-        final Transaction trx = session.beginTransaction();
+    public void deleteUser(long userId) throws HibernateException {
         final UserDataSet user = session.load(UserDataSet.class, userId);
         session.delete(user);
-        trx.commit();
     }
 
-    public UserDataSet getUserByLogin(String login) {
+    public UserDataSet getUserByLogin(String login) throws HibernateException {
         final Criteria criteria = session.createCriteria(UserDataSet.class);
         return (UserDataSet) criteria
                 .add(Restrictions.eq("login", login))
                 .uniqueResult();
     }
 
-    public UserDataSet getUserByEmail(String email) {
+    public UserDataSet getUserByEmail(String email) throws HibernateException {
         final Criteria criteria = session.createCriteria(UserDataSet.class);
         return (UserDataSet) criteria
                 .add(Restrictions.eq("email", email))

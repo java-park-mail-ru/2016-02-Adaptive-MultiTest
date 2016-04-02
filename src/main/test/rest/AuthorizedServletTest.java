@@ -35,15 +35,14 @@ import static org.junit.Assert.assertEquals;
 @FixMethodOrder(MethodSorters.JVM)
 public class AuthorizedServletTest extends JerseyTest {
     private static SessionFactory sessionFactory;
-    private static final String dbName = "MultiTestTest";
-    private Configuration configuration;
+    private static final String DBNAME = "MultiTestTest";
     private static UserDataSet guest;
 
     @SuppressWarnings("AnonymousInnerClassMayBeStatic")
     @Override
     protected Application configure() {
         final Context context = new Context();
-        context.put(AccountService.class, new AccountServiceImpl(dbName));
+        context.put(AccountService.class, new AccountServiceImpl(DBNAME));
 
         final ResourceConfig config = new ResourceConfig(Users.class, Sessions.class);
         final HttpServletRequest request = mock(HttpServletRequest.class);
@@ -66,7 +65,7 @@ public class AuthorizedServletTest extends JerseyTest {
 
     @BeforeClass
     public static void fillDB() {
-        final Configuration configuration = Config.getHibernateConfiguration(dbName, true);
+        final Configuration configuration = Config.getHibernateConfiguration(DBNAME, true);
         sessionFactory = createSessionFactory(configuration);
         DBFiller.fillDB(sessionFactory);
 

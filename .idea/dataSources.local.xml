@@ -7,5 +7,11 @@
       <schema-pattern>MultiTestTest.*</schema-pattern>
       <default-schemas>MultiTestTest.*</default-schemas>
     </data-source>
+    <data-source name="MySQL - MultiTest@localhost" uuid="808e406d-cc08-4ba7-a2cb-cfe96fdce932">
+      <secret-storage>master_key</secret-storage>
+      <user-name>mtestuser</user-name>
+      <schema-pattern>MultiTest.*</schema-pattern>
+      <default-schemas>MultiTest.*</default-schemas>
+    </data-source>
   </component>
 </project>
