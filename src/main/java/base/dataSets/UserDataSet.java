@@ -49,6 +49,7 @@ public class UserDataSet {
 
     public long getId() { return id; }
 
+    @SuppressWarnings("unused")
     public void setId(long id) { this.id = id; }
 
     @NotNull

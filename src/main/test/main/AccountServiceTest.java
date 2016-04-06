@@ -117,11 +117,11 @@ public class AccountServiceTest {
         updatedUser.setLogin("guestee");
         updatedUser.setEmail("guest@guestee");
         updatedUser.setPassword("1234567");
-        final long updatedUserId = accountService.updateUser(updatedUser, 2);
+        accountService.updateUser(updatedUser, 2);
 
         try (Session testSession = sessionFactory.openSession()) {
             final UserDataSetDAO dao = new UserDataSetDAO(testSession);
-            final UserDataSet user = dao.getUser(updatedUserId);
+            final UserDataSet user = dao.getUser(2);
             assertEquals(updatedUser, user);
 
             guest.setLogin("guestee");

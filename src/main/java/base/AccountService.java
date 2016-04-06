@@ -19,7 +19,7 @@ public interface AccountService {
     @SuppressWarnings("unused")
     UserDataSet getUserByEmail(String login);
 
-    long updateUser(UserDataSet updatedUser, long userId);
+    void updateUser(UserDataSet updatedUser, long userId);
 
     void deleteUser(long userId);
 

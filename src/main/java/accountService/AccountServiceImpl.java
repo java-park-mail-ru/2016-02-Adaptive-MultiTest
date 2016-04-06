@@ -58,16 +58,16 @@ public class AccountServiceImpl implements AccountService{
             } catch (HibernateException e) {
                 e.printStackTrace();
                 trx.rollback();
-                return -1;
             }
         }
+        return -1;
     }
 
     @Nullable
     @Override
     public UserDataSet getUser(long userId) {
+        final UserDataSet idUser;
         try (Session session = sessionFactory.openSession()) {
-            final UserDataSet idUser;
             try {
                 final UserDataSetDAO dao = new UserDataSetDAO(session);
                 idUser = dao.getUser(userId);
@@ -75,15 +75,15 @@ public class AccountServiceImpl implements AccountService{
                 e.printStackTrace();
                 return null;
             }
-            return idUser;
         }
+        return idUser;
     }
 
     @Nullable
     @Override
     public UserDataSet getUserByLogin(String login) {
+        final UserDataSet loginUser;
         try (Session session = sessionFactory.openSession()) {
-            final UserDataSet loginUser;
             try {
                 final UserDataSetDAO dao = new UserDataSetDAO(session);
                 loginUser = dao.getUserByLogin(login);
@@ -91,15 +91,15 @@ public class AccountServiceImpl implements AccountService{
                 e.printStackTrace();
                 return null;
             }
-            return loginUser;
         }
+        return loginUser;
     }
 
     @Nullable
     @Override
     public UserDataSet getUserByEmail(String email) {
+        final UserDataSet emailUser;
         try (Session session = sessionFactory.openSession()) {
-            final UserDataSet emailUser;
             try {
                 final UserDataSetDAO dao = new UserDataSetDAO(session);
                 emailUser = dao.getUserByEmail(email);
@@ -107,23 +107,21 @@ public class AccountServiceImpl implements AccountService{
                 e.printStackTrace();
                 return null;
             }
-            return emailUser;
         }
+        return emailUser;
     }
 
     @Override
-    public long updateUser(UserDataSet updatedUser, long userId) {
+    public void updateUser(UserDataSet updatedUser, long userId) {
         try (Session session = sessionFactory.openSession()) {
             final Transaction trx = session.beginTransaction();
             try {
                 final UserDataSetDAO dao = new UserDataSetDAO(session);
                 dao.updateUser(updatedUser, userId);
                 trx.commit();
-                return userId;
             } catch (HibernateException e) {
                 e.printStackTrace();
                 trx.rollback();
-                return  -1;
             }
         }
     }
@@ -161,6 +159,7 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public void deleteSession(String sessionId) { sessions.remove(sessionId); }
 
+    @SuppressWarnings("unused")
     public Map<String, UserDataSet> getSessions() { return sessions; }
 
     private static SessionFactory createSessionFactory(Configuration configuration) {

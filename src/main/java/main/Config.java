@@ -7,6 +7,7 @@ import org.hibernate.cfg.Configuration;
  * Created by Sasha on 31.03.16.
  */
 public class Config {
+    @SuppressWarnings("SameParameterValue")
     public static Configuration getHibernateConfiguration(String dbName, boolean autoCreate) {
         final Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(UserDataSet.class);
