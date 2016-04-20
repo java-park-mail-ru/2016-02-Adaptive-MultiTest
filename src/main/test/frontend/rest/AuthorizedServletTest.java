@@ -1,11 +1,11 @@
-package rest;
+package frontend.rest;
 
 import accountService.AccountServiceImpl;
 import accountService.dao.UserDataSetDAO;
 import base.AccountService;
 import base.dataSets.UserDataSet;
-import main.Config;
-import main.Status;
+import helpers.Config;
+import helpers.Status;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -23,9 +23,14 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
-import main.Context;
+import helpers.Context;
 import org.junit.runners.MethodSorters;
 import testHelpers.DBFiller;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 /**
@@ -35,14 +40,35 @@ import static org.junit.Assert.assertEquals;
 @FixMethodOrder(MethodSorters.JVM)
 public class AuthorizedServletTest extends JerseyTest {
     private static SessionFactory sessionFactory;
-    private static final String DBNAME = "MultiTestTest";
     private static UserDataSet guest;
+    private static String dbName;
+
+    @BeforeClass
+    public static void fillDB() throws IOException {
+        final Properties dbProperties = new Properties();
+        try {
+            final FileInputStream fis = new FileInputStream("src/main/java/cfg/db.properties");
+            dbProperties.load(fis);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        dbName = dbProperties.getProperty("test_db.name");
+        final Configuration configuration = Config.getHibernateConfiguration(dbName, true);
+        sessionFactory = createSessionFactory(configuration);
+        DBFiller.fillDB(sessionFactory);
+
+        guest = new UserDataSet();
+        guest.setLogin("guest");
+        guest.setEmail("guest@guest");
+        guest.setPassword("12345");
+    }
 
     @SuppressWarnings("AnonymousInnerClassMayBeStatic")
     @Override
     protected Application configure() {
         final Context context = new Context();
-        context.put(AccountService.class, new AccountServiceImpl(DBNAME));
+        context.put(AccountService.class, new AccountServiceImpl(dbName));
 
         final ResourceConfig config = new ResourceConfig(Users.class, Sessions.class);
         final HttpServletRequest request = mock(HttpServletRequest.class);
@@ -63,18 +89,6 @@ public class AuthorizedServletTest extends JerseyTest {
         return config;
     }
 
-    @BeforeClass
-    public static void fillDB() {
-        final Configuration configuration = Config.getHibernateConfiguration(DBNAME, true);
-        sessionFactory = createSessionFactory(configuration);
-        DBFiller.fillDB(sessionFactory);
-
-        guest = new UserDataSet();
-        guest.setLogin("guest");
-        guest.setEmail("guest@guest");
-        guest.setPassword("12345");
-    }
-
     @Before
     public void guestSignIn() {
         target("session").request().put(Entity.json(guest));
@@ -83,8 +97,8 @@ public class AuthorizedServletTest extends JerseyTest {
     @Test
     public void testGetAllUsers() {
         final String actualJson = target("user").request().get(String.class);
-        final String expectedJson = "[{\"email\":\"admin@admin\",\"id\":1,\"login\":\"admin\",\"password\":\"admin\"}," +
-                "{\"email\":\"guest@guest\",\"id\":2,\"login\":\"guest\",\"password\":\"12345\"}]";
+        final String expectedJson = "[{\"email\":\"admin@admin\",\"id\":1,\"login\":\"admin\",\"password\":\"admin\",\"score\":0}," +
+                "{\"email\":\"guest@guest\",\"id\":2,\"login\":\"guest\",\"password\":\"12345\",\"score\":0}]";
         assertEquals(expectedJson, actualJson);
     }
 
@@ -95,16 +109,16 @@ public class AuthorizedServletTest extends JerseyTest {
     }
 
     @Test
-    public void testGetAdminUser() {
-        final String actualJson = target("user").path("1").request().get(String.class);
-        final String expectedJson = "{ \"id\": \"1\",\"login\": \"admin\",\"email\": \"admin@admin\" }";
+    public void testGetGuestUser() {
+        final String actualJson = target("user").path("2").request().get(String.class);
+        final String expectedJson = "{\"email\":\"guest@guest\",\"id\":2,\"login\":\"guest\",\"password\":\"12345\",\"score\":0}";
         assertEquals(expectedJson, actualJson);
     }
 
     @Test
     public void testAuthorized() {
         final String actualJson = target("session").request().get(String.class);
-        final String expectedJson = "{ \"id\": \"2\" }";
+        final String expectedJson = "{ \"id\": \"2\", \"login\": \"guest\" }";
         assertEquals(expectedJson, actualJson);
     }
 

@@ -3,8 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script type="text/javascript">
+        var ws;
+        var started = false;
+        var finished = false;
+
+        var myName = "${myName}";
+        var enemyName = "";
+
+        init = function () {
+            ws = new WebSocket("ws://127.0.0.1:8080/api/gameplay");
+
+            document.getElementById("startblock").style.display = "none";
+            document.getElementById("wait").style.display = "block";
+
+            ws.onopen = function () {
+                console.log("opened!");
+            };
+
+            ws.onmessage = function (event) {
+                var data = JSON.parse(event.data);
+
+                if(data.status == "start"){
+                    document.getElementById("wait").style.display = "none";
+                    document.getElementById("started").style.display = "block";
+                    console.log(data);
+                }
+
+                if(data.status == "move"){
+                    console.log(data);
+                }
+
+                if(data.status == "wait"){
+                    console.log(data);
+                }
+
+                if(data.status == "finish"){
+                    document.getElementById("win").style.display = "block";
+                    document.getElementById("started").style.display = "none";
+
+                    if(data.win)
+                        document.getElementById("win").innerHTML = "winner!";
+                    else
+                        document.getElementById("win").innerHTML = "loser!";
+
+                    console.log(data);
+                }
+            };
+
+            ws.onclose = function () {
+                console.log("closed!");
+            };
+
+        };
+
+        function sendCoords(x, y) {
+            var message = "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"}";
+            ws.send(message);
+        }
+
+    </script>
 </head>
-<body>
-<h3>HELLO!</h3>
-</body>
+    <body>
+        <div id = "startblock">
+            <h3>HELLO!</h3>
+            <button onclick="init();">start</button>
+        </div>
+        <div id="wait" style="display: none">
+            <p>Waiting for enemy</p>
+        </div>
+        <div id="started" style="display: none">
+            <p>Game started</p>
+        </div>
+        <div id="win" style="display: none">
+        </div>
+    </body>
 </html>

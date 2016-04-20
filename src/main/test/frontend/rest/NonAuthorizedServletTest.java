@@ -1,11 +1,11 @@
-package rest;
+package frontend.rest;
 
 import accountService.AccountServiceImpl;
 import accountService.dao.UserDataSetDAO;
 import base.AccountService;
 import base.dataSets.UserDataSet;
-import main.Config;
-import main.Status;
+import helpers.Config;
+import helpers.Status;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -27,9 +27,13 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
-import main.Context;
+import helpers.Context;
 import org.junit.runners.MethodSorters;
 import testHelpers.DBFiller;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -39,12 +43,23 @@ import static org.junit.Assert.assertEquals;
 @FixMethodOrder(MethodSorters.JVM)
 public class NonAuthorizedServletTest extends JerseyTest {
     private static SessionFactory sessionFactory;
-    private static final String DBNAME = "MultiTestTest";
+
+    private static String dbName;
 
     @Override
     protected Application configure() {
+        final Properties dbProperties = new Properties();
+        //noinspection OverlyBroadCatchBlock
+        try {
+            final FileInputStream fis = new FileInputStream("src/main/java/cfg/db.properties");
+            dbProperties.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        dbName = dbProperties.getProperty("test_db.name");
         final Context context = new Context();
-        context.put(AccountService.class, new AccountServiceImpl(DBNAME));
+        context.put(AccountService.class, new AccountServiceImpl(dbName));
 
         final ResourceConfig config = new ResourceConfig(Users.class, Sessions.class);
         final HttpSession session = mock(HttpSession.class);
@@ -67,7 +82,7 @@ public class NonAuthorizedServletTest extends JerseyTest {
 
     @BeforeClass
     public static void fillDB() {
-        final Configuration configuration = Config.getHibernateConfiguration(DBNAME, true);
+        final Configuration configuration = Config.getHibernateConfiguration(dbName, true);
         sessionFactory = createSessionFactory(configuration);
         DBFiller.fillDB(sessionFactory);
     }
@@ -75,8 +90,8 @@ public class NonAuthorizedServletTest extends JerseyTest {
     @Test
     public void testGetAllUsers() {
         final String actualJson = target("user").request().get(String.class);
-        final String expectedJson = "[{\"email\":\"admin@admin\",\"id\":1,\"login\":\"admin\",\"password\":\"admin\"}," +
-                "{\"email\":\"guest@guest\",\"id\":2,\"login\":\"guest\",\"password\":\"12345\"}]";
+        final String expectedJson = "[{\"email\":\"admin@admin\",\"id\":1,\"login\":\"admin\",\"password\":\"admin\",\"score\":0}," +
+                "{\"email\":\"guest@guest\",\"id\":2,\"login\":\"guest\",\"password\":\"12345\",\"score\":0}]";
         assertEquals(expectedJson, actualJson);
     }
 
@@ -88,9 +103,8 @@ public class NonAuthorizedServletTest extends JerseyTest {
 
     @Test
     public void testGetAdminUser() {
-        final String actualJson = target("user").path("1").request().get(String.class);
-        final String expectedJson = "{ \"id\": \"1\",\"login\": \"admin\",\"email\": \"admin@admin\" }";
-        assertEquals(expectedJson, actualJson);
+        final Response actualResponse = target("user").path("1").request().get();
+        assertEquals(Status.FORBIDDEN, actualResponse.getStatus());
     }
 
     @Test

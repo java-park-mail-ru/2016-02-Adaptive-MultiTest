@@ -1,4 +1,4 @@
-package rest;
+package frontend.rest;
 
 import base.AccountService;
 import base.dataSets.UserDataSet;
@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response;
 @Path("/session")
 public class Sessions {
     @Inject
-    private main.Context context;
+    private helpers.Context context;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -25,7 +25,8 @@ public class Sessions {
         final AccountService accountService = context.get(AccountService.class);
         final String sessionId = request.getSession().getId();
         if (accountService.isAuthenticated(sessionId)) {
-            final String jsonString = "{ \"id\": \"" + accountService.getUserBySession(sessionId).getId() + "\" }";
+            final String jsonString = "{ \"id\": \"" + accountService.getUserBySession(sessionId).getId() + "\", \"login\": \""
+                    + accountService.getUserBySession(sessionId).getLogin() + "\" }";
             return Response.status(Response.Status.OK).entity(jsonString).build();
         } else {
             return Response.status(Response.Status.UNAUTHORIZED).build();

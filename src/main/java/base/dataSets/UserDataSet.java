@@ -25,6 +25,9 @@ public class UserDataSet {
     @Column(name="email")
     private String email;
 
+    @Column(name="score")
+    private int score;
+
     @SuppressWarnings("RedundantNoArgConstructor")
     public UserDataSet() {
     }
@@ -49,13 +52,16 @@ public class UserDataSet {
 
     public long getId() { return id; }
 
-    @SuppressWarnings("unused")
     public void setId(long id) { this.id = id; }
 
     @NotNull
     public String getEmail() { return email; }
 
     public void setEmail(@NotNull String email) { this.email = email; }
+
+    public int getScore() { return score; }
+
+    public void setScore(int score) { this.score = score; }
 
     @SuppressWarnings("RedundantIfStatement")
     @Override

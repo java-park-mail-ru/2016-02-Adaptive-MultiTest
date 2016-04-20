@@ -4,6 +4,7 @@ import base.dataSets.UserDataSet;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import java.util.List;
@@ -43,6 +44,12 @@ public class UserDataSetDAO {
         session.save(user);
     }
 
+    public  void setUserScore(UserDataSet actualUser, int score) throws HibernateException {
+        final UserDataSet user = session.load(UserDataSet.class, actualUser.getId());
+        user.setScore(score);
+        session.save(user);
+    }
+
     public void deleteUser(long userId) throws HibernateException {
         final UserDataSet user = session.load(UserDataSet.class, userId);
         session.delete(user);
@@ -60,5 +67,14 @@ public class UserDataSetDAO {
         return (UserDataSet) criteria
                 .add(Restrictions.eq("email", email))
                 .uniqueResult();
+    }
+
+    public List<UserDataSet> getTopPlayers() throws HibernateException {
+        final Criteria criteria = session.createCriteria(UserDataSet.class)
+                .addOrder(Order.desc("score"))
+                .setFirstResult(0)
+                .setMaxResults(10);
+        //noinspection unchecked
+        return (List<UserDataSet>) criteria.list();
     }
 }

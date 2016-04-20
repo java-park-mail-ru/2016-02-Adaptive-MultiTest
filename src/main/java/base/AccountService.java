@@ -19,7 +19,7 @@ public interface AccountService {
     @SuppressWarnings("unused")
     UserDataSet getUserByEmail(String login);
 
-    void updateUser(UserDataSet updatedUser, long userId);
+    long updateUser(UserDataSet updatedUser, long userId);
 
     void deleteUser(long userId);
 
@@ -32,4 +32,8 @@ public interface AccountService {
     boolean isValidUser(UserDataSet user);
 
     void deleteSession(String sessionId);
+
+    List<UserDataSet> getTopPlayers();
+
+    void setUserScore(String login);
 }

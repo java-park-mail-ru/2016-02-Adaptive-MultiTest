@@ -3,6 +3,7 @@ package main;
 import accountService.AccountServiceImpl;
 import accountService.dao.UserDataSetDAO;
 import base.dataSets.UserDataSet;
+import helpers.Config;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -14,8 +15,12 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import testHelpers.DBFiller;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -31,13 +36,21 @@ public class AccountServiceTest {
     private static SessionFactory sessionFactory;
     private static UserDataSet admin;
     private static UserDataSet guest;
-    private static final String DBNAME = "MultiTestTest";
 
     @BeforeClass
-    public static void setUp(){
-        accountService = new AccountServiceImpl(DBNAME);
+    public static void setUp() throws IOException {
+        final Properties dbProperties = new Properties();
+        try {
+            final FileInputStream fis = new FileInputStream("src/main/java/cfg/db.properties");
+            dbProperties.load(fis);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
-        final Configuration configuration = Config.getHibernateConfiguration(DBNAME, true);
+        final String dbName = dbProperties.getProperty("test_db.name");
+        accountService = new AccountServiceImpl(dbName);
+
+        final Configuration configuration = Config.getHibernateConfiguration(dbName, true);
         sessionFactory = createSessionFactory(configuration);
         DBFiller.fillDB(sessionFactory);
 
@@ -117,11 +130,11 @@ public class AccountServiceTest {
         updatedUser.setLogin("guestee");
         updatedUser.setEmail("guest@guestee");
         updatedUser.setPassword("1234567");
-        accountService.updateUser(updatedUser, 2);
+        final long updatedUserId = accountService.updateUser(updatedUser, 2);
 
         try (Session testSession = sessionFactory.openSession()) {
             final UserDataSetDAO dao = new UserDataSetDAO(testSession);
-            final UserDataSet user = dao.getUser(2);
+            final UserDataSet user = dao.getUser(updatedUserId);
             assertEquals(updatedUser, user);
 
             guest.setLogin("guestee");

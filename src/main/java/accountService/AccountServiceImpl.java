@@ -3,7 +3,7 @@ package accountService;
 import accountService.dao.UserDataSetDAO;
 import base.AccountService;
 import base.dataSets.UserDataSet;
-import main.Config;
+import helpers.Config;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -27,7 +27,6 @@ public class AccountServiceImpl implements AccountService{
 
     public AccountServiceImpl(String dbName) {
         final Configuration configuration = Config.getHibernateConfiguration(dbName, false);
-
         sessionFactory = createSessionFactory(configuration);
     }
 
@@ -58,16 +57,16 @@ public class AccountServiceImpl implements AccountService{
             } catch (HibernateException e) {
                 e.printStackTrace();
                 trx.rollback();
+                return -1;
             }
         }
-        return -1;
     }
 
     @Nullable
     @Override
     public UserDataSet getUser(long userId) {
-        final UserDataSet idUser;
         try (Session session = sessionFactory.openSession()) {
+            final UserDataSet idUser;
             try {
                 final UserDataSetDAO dao = new UserDataSetDAO(session);
                 idUser = dao.getUser(userId);
@@ -75,15 +74,15 @@ public class AccountServiceImpl implements AccountService{
                 e.printStackTrace();
                 return null;
             }
+            return idUser;
         }
-        return idUser;
     }
 
     @Nullable
     @Override
     public UserDataSet getUserByLogin(String login) {
-        final UserDataSet loginUser;
         try (Session session = sessionFactory.openSession()) {
+            final UserDataSet loginUser;
             try {
                 final UserDataSetDAO dao = new UserDataSetDAO(session);
                 loginUser = dao.getUserByLogin(login);
@@ -91,15 +90,15 @@ public class AccountServiceImpl implements AccountService{
                 e.printStackTrace();
                 return null;
             }
+            return loginUser;
         }
-        return loginUser;
     }
 
     @Nullable
     @Override
     public UserDataSet getUserByEmail(String email) {
-        final UserDataSet emailUser;
         try (Session session = sessionFactory.openSession()) {
+            final UserDataSet emailUser;
             try {
                 final UserDataSetDAO dao = new UserDataSetDAO(session);
                 emailUser = dao.getUserByEmail(email);
@@ -107,21 +106,23 @@ public class AccountServiceImpl implements AccountService{
                 e.printStackTrace();
                 return null;
             }
+            return emailUser;
         }
-        return emailUser;
     }
 
     @Override
-    public void updateUser(UserDataSet updatedUser, long userId) {
+    public long updateUser(UserDataSet updatedUser, long userId) {
         try (Session session = sessionFactory.openSession()) {
             final Transaction trx = session.beginTransaction();
             try {
                 final UserDataSetDAO dao = new UserDataSetDAO(session);
                 dao.updateUser(updatedUser, userId);
                 trx.commit();
+                return userId;
             } catch (HibernateException e) {
                 e.printStackTrace();
                 trx.rollback();
+                return  -1;
             }
         }
     }
@@ -159,8 +160,39 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public void deleteSession(String sessionId) { sessions.remove(sessionId); }
 
-    @SuppressWarnings("unused")
     public Map<String, UserDataSet> getSessions() { return sessions; }
+
+    @Nullable
+    @Override
+    public List<UserDataSet> getTopPlayers() {
+        try (Session session = sessionFactory.openSession()) {
+            try{
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                return dao.getTopPlayers();
+            } catch (HibernateException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Override
+    public void setUserScore(String login) {
+        final UserDataSet user = getUserByLogin(login);
+        try (Session session = sessionFactory.openSession()) {
+            final Transaction trx = session.beginTransaction();
+            try {
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                final int score = dao.getUser(user.getId()).getScore();
+                dao.setUserScore(user, score + 1);
+                trx.commit();
+            } catch (HibernateException e) {
+                e.printStackTrace();
+                trx.rollback();
+            }
+        }
+    }
 
     private static SessionFactory createSessionFactory(Configuration configuration) {
         final StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
