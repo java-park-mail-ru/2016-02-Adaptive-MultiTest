@@ -46,8 +46,8 @@ public class NonAuthorizedServletTest extends JerseyTest {
 
     private static String dbName;
 
-    @Override
-    protected Application configure() {
+    @BeforeClass
+    public static void fillDB() {
         final Properties dbProperties = new Properties();
         //noinspection OverlyBroadCatchBlock
         try {
@@ -58,6 +58,13 @@ public class NonAuthorizedServletTest extends JerseyTest {
         }
 
         dbName = dbProperties.getProperty("test_db.name");
+        final Configuration configuration = Config.getHibernateConfiguration(dbName, true);
+        sessionFactory = createSessionFactory(configuration);
+        DBFiller.fillDB(sessionFactory);
+    }
+
+    @Override
+    protected Application configure() {
         final Context context = new Context();
         context.put(AccountService.class, new AccountServiceImpl(dbName));
 
@@ -78,13 +85,6 @@ public class NonAuthorizedServletTest extends JerseyTest {
         });
 
         return config;
-    }
-
-    @BeforeClass
-    public static void fillDB() {
-        final Configuration configuration = Config.getHibernateConfiguration(dbName, true);
-        sessionFactory = createSessionFactory(configuration);
-        DBFiller.fillDB(sessionFactory);
     }
 
     @Test
