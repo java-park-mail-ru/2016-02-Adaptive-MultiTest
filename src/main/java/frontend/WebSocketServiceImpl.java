@@ -12,34 +12,34 @@ import java.util.Map;
  * Created by Sasha on 17.04.16.
  */
 public class WebSocketServiceImpl implements WebSocketService{
-    private final Map<String, GameWebSocket> userSockets = new HashMap<>();
+    private final Map<Long, GameWebSocket> userSockets = new HashMap<>();
 
     @Override
     public void addUser(GameWebSocket user) {
-        userSockets.put(user.getMyName(), user);
+        userSockets.put(user.getMyId(), user);
     }
 
     @Override
-    public void removeUser(GameWebSocket user) { userSockets.remove(user.getMyName()); }
+    public void removeUser(GameWebSocket user) { userSockets.remove(user.getMyId()); }
 
     @Override
     public void notifyStartGame(GameUser user, Coords red, Coords blue) {
-        userSockets.get(user.getMyName()).startGame(user, red, blue);
+        userSockets.get(user.getMyId()).startGame(user, red, blue);
     }
 
     @Override
     public void notifyMove(GameUser user, PossibleCourses possibleCourses) {
-        userSockets.get(user.getMyName()).sendPossibleCourses(possibleCourses);
+        userSockets.get(user.getMyId()).sendPossibleCourses(possibleCourses);
     }
 
     @Override
     public void notifyWait(GameUser user) {
-        userSockets.get(user.getMyName()).waitEnemyMove();
+        userSockets.get(user.getMyId()).waitEnemyMove();
     }
 
     @Override
     public void notifyGameOver(GameUser user, boolean win) {
-        userSockets.get(user.getMyName()).gameOver(win);
-        userSockets.remove(user.getMyName());
+        userSockets.get(user.getMyId()).gameOver(win);
+        userSockets.remove(user.getMyId());
     }
 }

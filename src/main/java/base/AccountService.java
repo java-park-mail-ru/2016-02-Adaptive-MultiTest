@@ -35,5 +35,5 @@ public interface AccountService {
 
     List<UserDataSet> getTopPlayers();
 
-    void setUserScore(String login);
+    void setUserScore(long id);
 }

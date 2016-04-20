@@ -53,11 +53,13 @@ public class Main {
 
         final String dbName = dbProperties.getProperty("main_db.name");
         final Context context = new Context();
+
         final AccountService accountService = new AccountServiceImpl(dbName);
         context.put(AccountService.class, accountService);
         final WebSocketService webSocketService = new WebSocketServiceImpl();
         context.put(WebSocketService.class, webSocketService);
-        context.put(GameMechanics.class, new GameMechanicsImpl(webSocketService, accountService));
+        final GameMechanics gameMechanics = new GameMechanicsImpl(webSocketService, accountService);
+        context.put(GameMechanics.class, gameMechanics);
 
         contextHandler.addServlet(new ServletHolder(new WebSocketGameServlet(context)), "/gameplay");
 
@@ -85,6 +87,7 @@ public class Main {
         server.setHandler(handlers);
 
         server.start();
-        server.join();
+
+        gameMechanics.run();
     }
 }

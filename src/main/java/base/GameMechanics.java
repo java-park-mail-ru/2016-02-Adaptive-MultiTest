@@ -7,9 +7,11 @@ import mechanics.Coords;
  * Created by Sasha on 17.04.16.
  */
 public interface GameMechanics {
-    void addUser(@NotNull String user);
+    void addUser(@NotNull long user);
 
-    void removeUser(@NotNull String user);
+    void removeUser(@NotNull long user);
 
-    void move(Coords coords, @NotNull String user);
+    void move(Coords coords, @NotNull long user);
+
+    void run();
 }

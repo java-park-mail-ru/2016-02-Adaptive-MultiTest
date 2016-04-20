@@ -14,18 +14,23 @@ public class UserDataSet {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @NotNull
     private long id;
 
     @Column(name = "login")
+    @NotNull
     private String login;
 
     @Column(name="password")
+    @NotNull
     private String password;
 
     @Column(name="email")
+    @NotNull
     private String email;
 
     @Column(name="score")
+    @NotNull
     private int score;
 
     @SuppressWarnings("RedundantNoArgConstructor")
@@ -63,16 +68,26 @@ public class UserDataSet {
 
     public void setScore(int score) { this.score = score; }
 
-    @SuppressWarnings("RedundantIfStatement")
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null) return false;
-        if (this.getClass() != obj.getClass()) return false;
-        final UserDataSet other = (UserDataSet) obj;
-        if (this.id != other.id) return false;
-        if (!this.login.equals(other.login)) return false;
-        if (!this.email.equals(other.email)) return false;
-        if (!this.password.equals(other.password)) return false;
-        return true;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserDataSet that = (UserDataSet) o;
+
+        if (id != that.id) return false;
+        if (!login.equals(that.login)) return false;
+        if (!password.equals(that.password)) return false;
+        return email.equals(that.email);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + login.hashCode();
+        result = 31 * result + password.hashCode();
+        result = 31 * result + email.hashCode();
+        return result;
     }
 }

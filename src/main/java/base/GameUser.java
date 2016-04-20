@@ -8,20 +8,16 @@ import org.jetbrains.annotations.Nullable;
  */
 public class GameUser {
     @NotNull
-    private final String myName;
+    private final long myId;
     @Nullable
-    private String enemyName;
+    private long enemyId;
 
-    public GameUser(@NotNull String myName) {
-        this.myName = myName;
-    }
+    public GameUser(@NotNull long id) { this.myId = id; }
 
     @NotNull
-    public String getMyName() {
-        return myName;
-    }
+    public long getMyId() { return myId; }
     @Nullable
-    public String getEnemyName() { return enemyName; }
+    public long getEnemyId() { return enemyId; }
 
-    public void setEnemyName(@NotNull String enemyName) { this.enemyName = enemyName; }
+    public void setEnemyId(@NotNull long enemyId) { this.enemyId = enemyId; }
 }

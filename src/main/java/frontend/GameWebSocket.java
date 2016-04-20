@@ -1,8 +1,10 @@
 package frontend;
 
+import base.AccountService;
 import base.GameMechanics;
 import base.GameUser;
 import base.WebSocketService;
+import base.dataSets.UserDataSet;
 import com.sun.istack.internal.Nullable;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -26,37 +28,43 @@ import java.io.IOException;
 @WebSocket
 public class GameWebSocket {
     @NotNull
-    private final String myName;
+    private final long myId;
     @Nullable
     private Session session;
     @NotNull
     private final GameMechanics gameMechanics;
     @NotNull
     private final WebSocketService webSocketService;
+    @NotNull
+    private final AccountService accountService;
 
     private final ObjectMapper mapper;
 
     private final JsonNodeFactory factory;
 
-    public GameWebSocket(@NotNull String myName, @NotNull GameMechanics gameMechanics, @NotNull WebSocketService webSocketService) {
-        this.myName = myName;
+    public GameWebSocket(@NotNull long myId, @NotNull GameMechanics gameMechanics,
+                         @NotNull WebSocketService webSocketService, @NotNull AccountService accountService) {
+        this.myId = myId;
         this.gameMechanics = gameMechanics;
         this.webSocketService = webSocketService;
+        this.accountService = accountService;
         mapper = new ObjectMapper();
         mapper.getJsonFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
         factory = JsonNodeFactory.instance;
     }
 
     @NotNull
-    public String getMyName() {
-        return myName;
+    public long getMyId() {
+        return myId;
     }
 
     public void startGame(@NotNull GameUser user, Coords red, Coords blue) {
         try {
+            final UserDataSet enemy = accountService.getUser(user.getEnemyId());
+
             final ObjectNode jsonStart = new ObjectNode(factory);
             jsonStart.put("status", "start");
-            jsonStart.put("enemyName", user.getEnemyName() == null ? "" : user.getEnemyName());
+            jsonStart.put("enemyName", enemy.getLogin());
             jsonStart.put("redx", red.getX());
             jsonStart.put("redy", red.getY());
             jsonStart.put("bluex", blue.getX());
@@ -110,7 +118,7 @@ public class GameWebSocket {
     public void onMessage(String data) {
         try {
             final Coords coords = mapper.readValue(data, Coords.class);
-            gameMechanics.move(coords, myName);
+            gameMechanics.move(coords, myId);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -121,13 +129,13 @@ public class GameWebSocket {
     public void onOpen(@NotNull Session session) {
         this.session = session;
         webSocketService.addUser(this);
-        gameMechanics.addUser(myName);
+        gameMechanics.addUser(myId);
     }
 
     @SuppressWarnings({"unused", "UnusedParameters"})
     @OnWebSocketClose
     public void onClose(int statusCode, String reason) {
         webSocketService.removeUser(this);
-        gameMechanics.removeUser(myName);
+        gameMechanics.removeUser(myId);
     }
 }

@@ -178,8 +178,8 @@ public class AccountServiceImpl implements AccountService{
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    public void setUserScore(String login) {
-        final UserDataSet user = getUserByLogin(login);
+    public void setUserScore(long id) {
+        final UserDataSet user = getUser(id);
         try (Session session = sessionFactory.openSession()) {
             final Transaction trx = session.beginTransaction();
             try {

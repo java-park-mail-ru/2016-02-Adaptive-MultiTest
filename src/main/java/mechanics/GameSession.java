@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class GameSession {
     @NotNull
-    private final Map<String, GameUser> users = new HashMap<>();
+    private final Map<Long, GameUser> users = new HashMap<>();
 
     @SuppressWarnings("EnumeratedConstantNamingConvention")
     public enum Snake { RED, BLUE }
@@ -28,12 +28,12 @@ public class GameSession {
 
     private final Coords lastBlue;
 
-    public GameSession(@NotNull String user1, @NotNull String user2) {
+    public GameSession(@NotNull long user1, @NotNull long user2) {
         final GameUser gameUser1 = new GameUser(user1);
-        gameUser1.setEnemyName(user2);
+        gameUser1.setEnemyId(user2);
 
         final GameUser gameUser2 = new GameUser(user2);
-        gameUser2.setEnemyName(user1);
+        gameUser2.setEnemyId(user1);
 
         users.put(user1, gameUser1);
         users.put(user2, gameUser2);
@@ -50,13 +50,13 @@ public class GameSession {
     }
 
     @Nullable
-    public GameUser getEnemy(@NotNull String user) {
-        final String enemyName = users.containsKey(user) ? users.get(user).getEnemyName() : null;
-        return enemyName == null ? null : users.get(enemyName);
+    public GameUser getEnemy(@NotNull long user) {
+        final long enemyId = users.containsKey(user) ? users.get(user).getEnemyId() : -1;
+        return enemyId == -1 ? null : users.get(enemyId);
     }
 
     @Nullable
-    public GameUser getSelf(String user) {
+    public GameUser getSelf(@NotNull long user) {
         return users.get(user);
     }
 
