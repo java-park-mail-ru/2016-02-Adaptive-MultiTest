@@ -12,6 +12,8 @@ import java.util.Map;
  * Created by Sasha on 17.04.16.
  */
 public class GameSession {
+    public static final int FIELD_SIZE = 8;
+
     @NotNull
     private final Map<Long, GameUser> users = new HashMap<>();
 
@@ -39,14 +41,14 @@ public class GameSession {
         users.put(user2, gameUser2);
 
         snake = Snake.BLUE;
-        allRed = new boolean[8][8];
-        allBlue = new boolean[8][8];
-        for (int redx = 0; redx < 8; redx++) allRed[redx][0] = true;
-        for (int redy = 1; redy < 8; redy++) allRed[0][redy] = true;
-        for (int bluex = 0; bluex < 8; bluex++) allBlue[bluex][7] = true;
-        for (int bluey = 0; bluey < 7; bluey++) allBlue[7][bluey] = true;
-        lastRed = new Coords();
-        lastBlue = new Coords();
+        allRed = new boolean[FIELD_SIZE][FIELD_SIZE];
+        allBlue = new boolean[FIELD_SIZE][FIELD_SIZE];
+        for (int redx = 0; redx < FIELD_SIZE; redx++) allRed[redx][0] = true;
+        for (int redy = 1; redy < FIELD_SIZE; redy++) allRed[0][redy] = true;
+        for (int bluex = 0; bluex < FIELD_SIZE; bluex++) allBlue[bluex][FIELD_SIZE - 1] = true;
+        for (int bluey = 0; bluey < FIELD_SIZE - 1; bluey++) allBlue[FIELD_SIZE - 1][bluey] = true;
+        lastRed = new Coords(-1, -1);
+        lastBlue = new Coords(-1, -1);
     }
 
     @Nullable
@@ -90,4 +92,8 @@ public class GameSession {
         this.lastBlue.setX(lastBlue.getX());
         this.lastBlue.setY(lastBlue.getY());
     }
+
+    public void occupyBlue(Coords coords) { allBlue[coords.getX()][coords.getY()] = true; }
+
+    public void occupyRed(Coords coords) { allRed[coords.getX()][coords.getY()] = true; }
 }

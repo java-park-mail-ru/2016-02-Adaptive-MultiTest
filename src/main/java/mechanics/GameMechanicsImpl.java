@@ -77,8 +77,8 @@ public class GameMechanicsImpl implements GameMechanics {
         final GameUser myUser = game.getSelf(userId);
         final GameUser enemyUser = game.getEnemy(userId);
 
-        occupy(coords, game);
-        final PossibleCourses possibleCourses = getPossibleCourses(game);
+        Move.occupy(coords, game);
+        final PossibleCourses possibleCourses = Move.getPossibleCourses(game);
 
         final boolean hasLeft = possibleCourses.getLeft().getX() != -1 && possibleCourses.getLeft().getY() != -1;
         final boolean hasRight = possibleCourses.getRight().getX() != -1 && possibleCourses.getRight().getY() != -1;
@@ -100,19 +100,15 @@ public class GameMechanicsImpl implements GameMechanics {
     @Override
     public void run() {
         //noinspection InfiniteLoopStatement
-        long lastFrameMillis = STEP_TIME;
         while (true) {
             final long before = clock.millis();
-            gmStep(lastFrameMillis);
+            gmStep();
             final long after = clock.millis();
             TimeHelper.sleep(STEP_TIME - (after - before));
-
-            final long afterSleep = clock.millis();
-            lastFrameMillis = afterSleep - before;
         }
     }
 
-    private void gmStep(long frameTime) {
+    private void gmStep() {
         while (!tasks.isEmpty()) {
             final Runnable nextTask = tasks.poll();
             if (nextTask != null) {
@@ -123,52 +119,6 @@ public class GameMechanicsImpl implements GameMechanics {
                 }
             }
         }
-    }
-
-    private void occupy(Coords coords, GameSession game) {
-        final boolean[][] allRed = game.getAllRed();
-        final boolean[][] allBlue = game.getAllBlue();
-        allRed[coords.getX()][coords.getY()] = true;
-        allBlue[coords.getX()][coords.getY()] = true;
-        game.setAllRed(allRed);
-        game.setAllBlue(allBlue);
-
-        if (game.getSnake() == GameSession.Snake.RED)
-            game.setLastRed(coords);
-        else
-            game.setLastBlue(coords);
-
-        game.changeSnake();
-    }
-
-    @SuppressWarnings("OverlyComplexMethod")
-    private PossibleCourses getPossibleCourses(GameSession game) {
-        final PossibleCourses possibleCourses = new PossibleCourses();
-        final boolean[][] allRed = game.getAllRed();
-        final boolean[][] allBlue = game.getAllBlue();
-        final Coords lastRed = new Coords(game.getLastRed().getX(), game.getLastRed().getY());
-        final Coords lastBlue = new Coords(game.getLastBlue().getX(), game.getLastBlue().getY());
-
-        if (game.getSnake() == GameSession.Snake.BLUE) {
-            if (lastBlue.getX() - 1 >= 0 && !allBlue[lastBlue.getX() - 1][lastBlue.getY()])
-                possibleCourses.setLeft(new Coords(lastBlue.getX() - 1, lastBlue.getY()));
-            if (!allBlue[lastBlue.getX() + 1][lastBlue.getY()])
-                possibleCourses.setRight(new Coords(lastBlue.getX() + 1, lastBlue.getY()));
-            if (lastBlue.getY() - 1 >= 0 && !allBlue[lastBlue.getX()][lastBlue.getY() - 1])
-                possibleCourses.setTop(new Coords(lastBlue.getX(), lastBlue.getY() - 1));
-            if (!allBlue[lastBlue.getX()][lastBlue.getY() + 1])
-                possibleCourses.setBottom(new Coords(lastBlue.getX(), lastBlue.getY() + 1));
-        } else {
-            if (!allRed[lastRed.getX() - 1][lastRed.getY()])
-                possibleCourses.setLeft(new Coords(lastRed.getX() - 1, lastRed.getY()));
-            if (lastRed.getX() + 1 < 8 && !allRed[lastRed.getX() + 1][lastRed.getY()])
-                possibleCourses.setRight(new Coords(lastRed.getX() + 1, lastRed.getY()));
-            if (!allRed[lastRed.getX()][lastRed.getY() - 1])
-                possibleCourses.setTop(new Coords(lastRed.getX(), lastRed.getY() - 1));
-            if (lastRed.getY() + 1 < 8 && !allRed[lastRed.getX()][lastRed.getY() + 1])
-                possibleCourses.setBottom(new Coords(lastRed.getX(), lastRed.getY() + 1));
-        }
-        return possibleCourses;
     }
 
     private void startGame(@NotNull long first, @NotNull long second) {
@@ -184,7 +134,7 @@ public class GameMechanicsImpl implements GameMechanics {
         webSocketService.notifyStartGame(game.getSelf(first), red, blue);
         webSocketService.notifyStartGame(game.getSelf(second), red, blue);
 
-        occupy(blue, game);
+        Move.occupy(blue, game);
         move(red, second);
     }
 

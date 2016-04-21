@@ -26,4 +26,22 @@ public class Coords {
     public int getY() { return y; }
 
     public void setY(int y) { this.y = y; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Coords coords = (Coords) o;
+
+        if (x != coords.getX()) return false;
+        return y == coords.getY();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = x;
+        result = 31 * result + y;
+        return result;
+    }
 }
