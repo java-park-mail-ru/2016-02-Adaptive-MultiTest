@@ -27,7 +27,6 @@ import java.io.IOException;
  */
 @WebSocket
 public class GameWebSocket {
-    @NotNull
     private final long myId;
     @Nullable
     private Session session;
@@ -42,7 +41,7 @@ public class GameWebSocket {
 
     private final JsonNodeFactory factory;
 
-    public GameWebSocket(@NotNull long myId, @NotNull GameMechanics gameMechanics,
+    public GameWebSocket(long myId, @NotNull GameMechanics gameMechanics,
                          @NotNull WebSocketService webSocketService, @NotNull AccountService accountService) {
         this.myId = myId;
         this.gameMechanics = gameMechanics;
@@ -53,7 +52,6 @@ public class GameWebSocket {
         factory = JsonNodeFactory.instance;
     }
 
-    @NotNull
     public long getMyId() {
         return myId;
     }

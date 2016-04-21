@@ -6,7 +6,6 @@ import base.GameUser;
 import base.WebSocketService;
 import helpers.TimeHelper;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.Clock;
 import java.util.*;
@@ -27,14 +26,13 @@ public class GameMechanicsImpl implements GameMechanics {
     @NotNull
     private final Map<Long, GameSession> idToGame = new HashMap<>();
 
-    @Nullable
     private volatile long waiter;
 
     @NotNull
     private final Queue<Runnable> tasks = new ConcurrentLinkedQueue<>();
 
     @NotNull
-    private Clock clock = Clock.systemDefaultZone();
+    private final Clock clock = Clock.systemDefaultZone();
 
     public GameMechanicsImpl(@NotNull WebSocketService webSocketService, @NotNull AccountService accountService) {
         this.webSocketService = webSocketService;
@@ -43,23 +41,22 @@ public class GameMechanicsImpl implements GameMechanics {
     }
 
     @Override
-    public void addUser(@NotNull long user) {
+    public void addUser(long user) {
         tasks.add(()->addUserInternal(user));
     }
 
     @Override
-    public void removeUser(@NotNull long user) {
+    public void removeUser(long user) {
         tasks.add(()->removeUserInternal(user));
     }
 
     @Override
-    public void move(@NotNull Coords coords, @NotNull long userId)  {
+    public void move(Coords coords, long userId)  {
         tasks.add(()->moveInternal(coords, userId));
     }
 
-    private void addUserInternal(@NotNull long user) {
+    private void addUserInternal(long user) {
         if (waiter != -1) {
-            //noinspection ConstantConditions
             startGame(user, waiter);
             waiter = -1;
         } else {
@@ -67,12 +64,12 @@ public class GameMechanicsImpl implements GameMechanics {
         }
     }
 
-    private void removeUserInternal(@NotNull long user) {
+    private void removeUserInternal(long user) {
         idToGame.remove(user);
     }
 
     @SuppressWarnings("ConstantConditions")
-    private void moveInternal(Coords coords, @NotNull long userId) {
+    private void moveInternal(Coords coords, long userId) {
         final GameSession game = idToGame.get(userId);
         final GameUser myUser = game.getSelf(userId);
         final GameUser enemyUser = game.getEnemy(userId);
@@ -121,7 +118,7 @@ public class GameMechanicsImpl implements GameMechanics {
         }
     }
 
-    private void startGame(@NotNull long first, @NotNull long second) {
+    private void startGame(long first, long second) {
         final GameSession game = new GameSession(first, second);
         idToGame.put(first, game);
         idToGame.put(second, game);

@@ -7,14 +7,13 @@ import javax.persistence.*;
 /**
  * Created by Sasha on 27.03.16.
  */
-@SuppressWarnings({"DefaultFileTemplate", "EqualsAndHashcode"})
+@SuppressWarnings({"DefaultFileTemplate", "NullableProblems"})
 @Entity
 @Table(name = "User")
 public class UserDataSet {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
     private long id;
 
     @Column(name = "login")
@@ -73,10 +72,12 @@ public class UserDataSet {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        UserDataSet that = (UserDataSet) o;
+        //noinspection QuestionableName
+        final UserDataSet that = (UserDataSet) o;
 
         if (id != that.id) return false;
         if (!login.equals(that.login)) return false;
+        // noinspection SimplifiableIfStatement
         if (!password.equals(that.password)) return false;
         return email.equals(that.email);
 

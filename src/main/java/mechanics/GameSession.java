@@ -22,15 +22,15 @@ public class GameSession {
 
     private Snake snake;
 
-    private boolean[][] allRed;
+    private final boolean[][] allRed;
 
-    private boolean[][] allBlue;
+    private final boolean[][] allBlue;
 
     private final Coords lastRed;
 
     private final Coords lastBlue;
 
-    public GameSession(@NotNull long user1, @NotNull long user2) {
+    public GameSession(long user1, long user2) {
         final GameUser gameUser1 = new GameUser(user1);
         gameUser1.setEnemyId(user2);
 
@@ -52,13 +52,13 @@ public class GameSession {
     }
 
     @Nullable
-    public GameUser getEnemy(@NotNull long user) {
+    public GameUser getEnemy(long user) {
         final long enemyId = users.containsKey(user) ? users.get(user).getEnemyId() : -1;
         return enemyId == -1 ? null : users.get(enemyId);
     }
 
     @Nullable
-    public GameUser getSelf(@NotNull long user) {
+    public GameUser getSelf(long user) {
         return users.get(user);
     }
 
@@ -73,11 +73,7 @@ public class GameSession {
 
     public boolean[][] getAllRed() { return allRed; }
 
-    public void setAllRed(boolean[][] allRed) { this.allRed = allRed; }
-
     public boolean[][] getAllBlue() { return allBlue; }
-
-    public void setAllBlue(boolean[][] allBlue) { this.allBlue = allBlue; }
 
     public Coords getLastRed() { return lastRed; }
 

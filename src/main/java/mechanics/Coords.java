@@ -32,10 +32,11 @@ public class Coords {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Coords coords = (Coords) o;
+        final Coords coords = (Coords) o;
 
-        if (x != coords.getX()) return false;
-        return y == coords.getY();
+        //noinspection SimplifiableIfStatement
+        if (x != coords.x) return false;
+        return y == coords.y;
     }
 
     @Override

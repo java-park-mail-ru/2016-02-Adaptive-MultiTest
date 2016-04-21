@@ -36,8 +36,8 @@ public class MovingTest {
 
     @Test
     public void testMove() {
-        Coords blueStart = new Coords(4,3);
-        Coords redStart = new Coords(3,2);
+        final Coords blueStart = new Coords(4,3);
+        final Coords redStart = new Coords(3,2);
         game.setLastBlue(blueStart);
         game.setLastRed(redStart);
 
@@ -52,7 +52,7 @@ public class MovingTest {
 
         Move.occupy(bluePC.getLeft(), game);
 
-        PossibleCourses redPC = Move.getPossibleCourses(game);
+        final PossibleCourses redPC = Move.getPossibleCourses(game);
         assertEquals(redPC.getLeft(), new Coords(2,2));
         assertEquals(redPC.getTop(), new Coords(3,1));
         assertEquals(redPC.getRight(), new Coords(4,2));
@@ -78,34 +78,34 @@ public class MovingTest {
 
     @Test
     public void testRedBorders() {
-        Coords start = new Coords(1,1);
+        final Coords start = new Coords(1,1);
         game.setLastBlue(start);
         game.setLastRed(start);
 
         Move.occupy(start, game);
-        PossibleCourses redPC = Move.getPossibleCourses(game);
+        final PossibleCourses redPC = Move.getPossibleCourses(game);
         assertEquals(redPC.getLeft(), new Coords(-1,-1));
         assertEquals(redPC.getTop(), new Coords(-1,-1));
 
         Move.occupy(start, game);
-        PossibleCourses bluePC = Move.getPossibleCourses(game);
+        final PossibleCourses bluePC = Move.getPossibleCourses(game);
         assertEquals(bluePC.getLeft(), new Coords(0,1));
         assertEquals(bluePC.getTop(), new Coords(1,0));
     }
 
     @Test
     public void testBlueBorders() {
-        Coords start = new Coords(GameSession.FIELD_SIZE - 2, GameSession.FIELD_SIZE - 2);
+        final Coords start = new Coords(GameSession.FIELD_SIZE - 2, GameSession.FIELD_SIZE - 2);
         game.setLastBlue(start);
         game.setLastRed(start);
 
         Move.occupy(start, game);
-        PossibleCourses redPC = Move.getPossibleCourses(game);
+        final PossibleCourses redPC = Move.getPossibleCourses(game);
         assertEquals(redPC.getRight(), new Coords(GameSession.FIELD_SIZE - 1, GameSession.FIELD_SIZE - 2));
         assertEquals(redPC.getBottom(), new Coords(GameSession.FIELD_SIZE - 2, GameSession.FIELD_SIZE - 1));
 
         Move.occupy(start, game);
-        PossibleCourses bluePC = Move.getPossibleCourses(game);
+        final PossibleCourses bluePC = Move.getPossibleCourses(game);
         assertEquals(bluePC.getRight(), new Coords(-1,-1));
         assertEquals(bluePC.getBottom(), new Coords(-1,-1));
     }
