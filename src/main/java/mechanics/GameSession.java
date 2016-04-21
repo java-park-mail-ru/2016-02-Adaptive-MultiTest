@@ -47,8 +47,8 @@ public class GameSession {
         for (int redy = 1; redy < FIELD_SIZE; redy++) allRed[0][redy] = true;
         for (int bluex = 0; bluex < FIELD_SIZE; bluex++) allBlue[bluex][FIELD_SIZE - 1] = true;
         for (int bluey = 0; bluey < FIELD_SIZE - 1; bluey++) allBlue[FIELD_SIZE - 1][bluey] = true;
-        lastRed = new Coords(-1, -1);
-        lastBlue = new Coords(-1, -1);
+        lastRed = new Coords();
+        lastBlue = new Coords();
     }
 
     @Nullable
