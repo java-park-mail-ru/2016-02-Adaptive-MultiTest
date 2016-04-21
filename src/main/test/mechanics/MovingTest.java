@@ -56,14 +56,14 @@ public class MovingTest {
         assertEquals(redPC.getLeft(), new Coords(2,2));
         assertEquals(redPC.getTop(), new Coords(3,1));
         assertEquals(redPC.getRight(), new Coords(4,2));
-        assertEquals(redPC.getBottom(), new Coords(-1,-1));
+        assertEquals(redPC.getBottom(), Coords.INVALID);
 
         Move.occupy(redPC.getRight(), game);
 
         bluePC = Move.getPossibleCourses(game);
         assertEquals(bluePC.getLeft(), new Coords(2,3));
-        assertEquals(bluePC.getTop(), new Coords(-1,-1));
-        assertEquals(bluePC.getRight(), new Coords(-1,-1));
+        assertEquals(bluePC.getTop(), Coords.INVALID);
+        assertEquals(bluePC.getRight(), Coords.INVALID);
         assertEquals(bluePC.getBottom(), new Coords(3,4));
 
         assertTrue(game.getAllBlue()[4][3]);
@@ -84,8 +84,8 @@ public class MovingTest {
 
         Move.occupy(start, game);
         final PossibleCourses redPC = Move.getPossibleCourses(game);
-        assertEquals(redPC.getLeft(), new Coords(-1,-1));
-        assertEquals(redPC.getTop(), new Coords(-1,-1));
+        assertEquals(redPC.getLeft(), Coords.INVALID);
+        assertEquals(redPC.getTop(), Coords.INVALID);
 
         Move.occupy(start, game);
         final PossibleCourses bluePC = Move.getPossibleCourses(game);
@@ -106,7 +106,7 @@ public class MovingTest {
 
         Move.occupy(start, game);
         final PossibleCourses bluePC = Move.getPossibleCourses(game);
-        assertEquals(bluePC.getRight(), new Coords(-1,-1));
-        assertEquals(bluePC.getBottom(), new Coords(-1,-1));
+        assertEquals(bluePC.getRight(), Coords.INVALID);
+        assertEquals(bluePC.getBottom(), Coords.INVALID);
     }
 }

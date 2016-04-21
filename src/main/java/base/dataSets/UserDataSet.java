@@ -16,7 +16,7 @@ public class UserDataSet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "login")
+    @Column(name = "login", unique = true)
     @NotNull
     private String login;
 
@@ -24,7 +24,7 @@ public class UserDataSet {
     @NotNull
     private String password;
 
-    @Column(name="email")
+    @Column(name="email", unique = true)
     @NotNull
     private String email;
 

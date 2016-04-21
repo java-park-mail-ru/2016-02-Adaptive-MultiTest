@@ -5,6 +5,8 @@ package mechanics;
  */
 @SuppressWarnings("InstanceVariableNamingConvention")
 public class Coords {
+    public static final Coords INVALID = new Coords(-1, -1);
+
     private int x;
 
     private int y;

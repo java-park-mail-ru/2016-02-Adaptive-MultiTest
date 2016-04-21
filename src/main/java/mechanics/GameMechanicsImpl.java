@@ -77,10 +77,10 @@ public class GameMechanicsImpl implements GameMechanics {
         Move.occupy(coords, game);
         final PossibleCourses possibleCourses = Move.getPossibleCourses(game);
 
-        final boolean hasLeft = possibleCourses.getLeft().getX() != -1 && possibleCourses.getLeft().getY() != -1;
-        final boolean hasRight = possibleCourses.getRight().getX() != -1 && possibleCourses.getRight().getY() != -1;
-        final boolean hasTop = possibleCourses.getTop().getX() != -1 && possibleCourses.getTop().getY() != -1;
-        final boolean hasBottom = possibleCourses.getBottom().getX() != -1 && possibleCourses.getBottom().getY() != -1;
+        final boolean hasLeft = !possibleCourses.getLeft().equals(Coords.INVALID);
+        final boolean hasRight = !possibleCourses.getRight().equals(Coords.INVALID);
+        final boolean hasTop = !possibleCourses.getTop().equals(Coords.INVALID);
+        final boolean hasBottom = !possibleCourses.getBottom().equals(Coords.INVALID);
         //noinspection OverlyComplexBooleanExpression
         if (!hasLeft && !hasRight && !hasTop && !hasBottom) {
             accountService.setUserScore(userId);
