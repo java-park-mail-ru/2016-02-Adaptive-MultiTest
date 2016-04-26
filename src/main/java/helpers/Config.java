@@ -3,6 +3,7 @@ package helpers;
 import base.dataSets.UserDataSet;
 import org.hibernate.cfg.Configuration;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -15,7 +16,8 @@ public class Config {
         final Properties dbProperties = new Properties();
         //noinspection OverlyBroadCatchBlock
         try {
-            final FileInputStream fis = new FileInputStream("src/main/java/cfg/db.properties");
+            String cfgPath = new File("").getAbsolutePath() + "/cfg/";
+            final FileInputStream fis = new FileInputStream(cfgPath + "db.properties");
             dbProperties.load(fis);
         } catch (IOException e) {
             e.printStackTrace();

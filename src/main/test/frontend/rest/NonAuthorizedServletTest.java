@@ -51,7 +51,7 @@ public class NonAuthorizedServletTest extends JerseyTest {
         final Properties dbProperties = new Properties();
         //noinspection OverlyBroadCatchBlock
         try {
-            final FileInputStream fis = new FileInputStream("src/main/java/cfg/db.properties");
+            final FileInputStream fis = new FileInputStream("src/main/java/main.cfg/db.properties");
             dbProperties.load(fis);
         } catch (IOException e) {
             e.printStackTrace();
