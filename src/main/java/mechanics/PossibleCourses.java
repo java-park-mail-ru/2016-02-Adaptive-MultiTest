@@ -21,15 +21,11 @@ public class PossibleCourses {
 
     public Coords getLeft() { return left; }
 
-    public void setLeft(Coords left) {
-        this.left = new Coords(left.getX(), left.getY());
-    }
+    public void setLeft(Coords left) { this.left = new Coords(left.getX(), left.getY()); }
 
     public Coords getRight() { return right; }
 
-    public void setRight(Coords right) {
-        this.right = new Coords(right.getX(), right.getY());
-    }
+    public void setRight(Coords right) { this.right = new Coords(right.getX(), right.getY()); }
 
     public Coords getTop() { return top; }
 
