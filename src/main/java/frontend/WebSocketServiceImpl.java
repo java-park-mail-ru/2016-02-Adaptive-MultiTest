@@ -42,4 +42,14 @@ public class WebSocketServiceImpl implements WebSocketService{
         userSockets.get(user.getMyId()).gameOver(win);
         userSockets.remove(user.getMyId());
     }
+
+    @Override
+    public void notifyError(GameUser user, String error) {
+        userSockets.get(user.getMyId()).sendError(error);
+    }
+
+    @Override
+    public void notifyUnexpectedEnemyExit(GameUser user) {
+        userSockets.get(user.getMyId()).reportUnexpectedEnemyExit();
+    }
 }

@@ -10,7 +10,9 @@ public interface GameMechanics {
 
     void removeUser(long user);
 
-    void move(Coords coords, long user);
+    void move(Coords coords, long user, boolean firstRedMove);
+
+    void exitUnexpectedly(long user);
 
     void run();
 }

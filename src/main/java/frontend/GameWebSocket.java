@@ -27,6 +27,11 @@ import java.io.IOException;
  */
 @WebSocket
 public class GameWebSocket {
+    @SuppressWarnings("ConstantNamingConvention")
+    private static final int unexpectedExitCode = 1001;
+    @SuppressWarnings("ConstantNamingConvention")
+    private static final int rightExitCode = 1000;
+
     private final long myId;
     @Nullable
     private Session session;
@@ -106,11 +111,31 @@ public class GameWebSocket {
             final ObjectNode jsonEndGame = new ObjectNode(factory);
             jsonEndGame.put("status", "finish");
             jsonEndGame.put("win", win);
-            if (session != null && session.isOpen())
+            if (session != null && session.isOpen()) {
                 session.getRemote().sendString(jsonEndGame.toString());
+                session.close();
+            }
         } catch (IOException | WebSocketException e) {
             e.printStackTrace();
         }
+    }
+
+    public void sendError(String error) {
+        try {
+            final ObjectNode jsonError = new ObjectNode(factory);
+            jsonError.put("status", "error");
+            jsonError.put("errorMessage", error);
+            if (session != null && session.isOpen())
+                session.getRemote().sendString(jsonError.toString());
+        } catch (IOException | WebSocketException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void reportUnexpectedEnemyExit() {
+        sendError("UnexpectedEnemyExit");
+        onClose(rightExitCode, "");
+        session.close();
     }
 
     @SuppressWarnings({"unused", "OverlyBroadCatchBlock"})
@@ -118,9 +143,9 @@ public class GameWebSocket {
     public void onMessage(String data) {
         try {
             final Coords coords = mapper.readValue(data, Coords.class);
-            gameMechanics.move(coords, myId);
+            gameMechanics.move(coords, myId, false);
         } catch (IOException e) {
-            e.printStackTrace();
+            sendError("invalid data");
         }
     }
 
@@ -128,14 +153,24 @@ public class GameWebSocket {
     @OnWebSocketConnect
     public void onOpen(@NotNull Session session) {
         this.session = session;
-        webSocketService.addUser(this);
-        gameMechanics.addUser(myId);
+
+        if(myId != -1) {
+            webSocketService.addUser(this);
+            gameMechanics.addUser(myId);
+        } else {
+            sendError("unauthorized");
+            session.close();
+        }
     }
 
     @SuppressWarnings({"unused", "UnusedParameters"})
     @OnWebSocketClose
     public void onClose(int statusCode, String reason) {
-        webSocketService.removeUser(this);
-        gameMechanics.removeUser(myId);
+        if (myId != -1) {
+            if (statusCode == unexpectedExitCode)
+                gameMechanics.exitUnexpectedly(myId);
+            webSocketService.removeUser(this);
+            gameMechanics.removeUser(myId);
+        }
     }
 }

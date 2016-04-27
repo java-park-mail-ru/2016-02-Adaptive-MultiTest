@@ -20,4 +20,8 @@ public interface WebSocketService {
     void notifyWait(GameUser user);
 
     void notifyGameOver(GameUser user, boolean win);
+
+    void notifyError(GameUser user, String error);
+
+    void notifyUnexpectedEnemyExit(GameUser user);
 }

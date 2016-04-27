@@ -16,7 +16,7 @@ public class Config {
         final Properties dbProperties = new Properties();
         //noinspection OverlyBroadCatchBlock
         try {
-            String cfgPath = new File("").getAbsolutePath() + "/cfg/";
+            final String cfgPath = new File("").getAbsolutePath() + "/cfg/";
             final FileInputStream fis = new FileInputStream(cfgPath + "db.properties");
             dbProperties.load(fis);
         } catch (IOException e) {

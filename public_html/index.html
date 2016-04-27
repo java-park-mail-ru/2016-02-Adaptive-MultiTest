@@ -38,6 +38,10 @@
                     console.log(data);
                 }
 
+                if(data.status == "error"){
+                    console.log(data);
+                }
+
                 if(data.status == "finish"){
                     document.getElementById("win").style.display = "block";
                     document.getElementById("started").style.display = "none";

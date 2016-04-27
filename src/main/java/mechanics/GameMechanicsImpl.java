@@ -51,8 +51,11 @@ public class GameMechanicsImpl implements GameMechanics {
     }
 
     @Override
-    public void move(Coords coords, long userId)  {
-        tasks.add(()->moveInternal(coords, userId));
+    public void exitUnexpectedly(long user) { tasks.add(()->exitUnexpectedlyInternal(user));}
+
+    @Override
+    public void move(Coords coords, long userId, boolean firstRedMove)  {
+        tasks.add(()->moveInternal(coords, userId, firstRedMove));
     }
 
     private void addUserInternal(long user) {
@@ -69,10 +72,20 @@ public class GameMechanicsImpl implements GameMechanics {
     }
 
     @SuppressWarnings("ConstantConditions")
-    private void moveInternal(Coords coords, long userId) {
+    private void moveInternal(Coords coords, long userId, boolean firstRedMove) {
         final GameSession game = idToGame.get(userId);
         final GameUser myUser = game.getSelf(userId);
         final GameUser enemyUser = game.getEnemy(userId);
+
+        if (myUser.getMyColor() == game.getSnake()) {
+            webSocketService.notifyError(myUser, "enemy`s turn");
+            return;
+        }
+
+        if (!firstRedMove && !Move.validCourse(coords, game)) {
+            webSocketService.notifyError(myUser, "unreachable point");
+            return;
+        }
 
         Move.occupy(coords, game);
         final PossibleCourses possibleCourses = Move.getPossibleCourses(game);
@@ -92,6 +105,13 @@ public class GameMechanicsImpl implements GameMechanics {
         webSocketService.notifyWait(myUser);
         webSocketService.notifyMove(enemyUser, possibleCourses, coords);
 
+    }
+
+    public void exitUnexpectedlyInternal(long user) {
+        final GameSession game = idToGame.get(user);
+        final GameUser enemy = game.getEnemy(user);
+        assert enemy != null;
+        webSocketService.notifyUnexpectedEnemyExit(enemy);
     }
 
     @Override
@@ -132,7 +152,8 @@ public class GameMechanicsImpl implements GameMechanics {
         webSocketService.notifyStartGame(game.getSelf(second), red, blue, "red");
 
         Move.occupy(blue, game);
-        move(red, second);
+        Move.occupy(red, game);
+        move(red, second, true);
     }
 
     private Coords getRandomCoords() {

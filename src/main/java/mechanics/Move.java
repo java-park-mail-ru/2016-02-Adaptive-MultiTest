@@ -1,7 +1,5 @@
 package mechanics;
 
-import javafx.geometry.Pos;
-
 /**
  * Created by Sasha on 21.04.16.
  */
@@ -18,7 +16,18 @@ public class Move {
         game.changeSnake();
     }
 
-    @SuppressWarnings("OverlyComplexMethod")
+    public static boolean validCourse(Coords coords, GameSession game) {
+        final PossibleCourses prevSnakePossibleCourses = getPossibleCourses(game);
+        final Coords left = prevSnakePossibleCourses.getLeft();
+        final Coords right = prevSnakePossibleCourses.getRight();
+        final Coords top = prevSnakePossibleCourses.getTop();
+        final Coords bottom = prevSnakePossibleCourses.getBottom();
+
+        //noinspection OverlyComplexBooleanExpression
+        return (coords.equals(left) || coords.equals(right) || coords.equals(top) || coords.equals(bottom))
+                && !coords.equals(Coords.INVALID);
+    }
+
     public static PossibleCourses getPossibleCourses(GameSession game) {
         final boolean[][] allRed = game.getAllRed();
         final boolean[][] allBlue = game.getAllBlue();
@@ -31,6 +40,7 @@ public class Move {
             return getPossibleCoursesForSpecificSnake(allRed, lastRed);
     }
 
+    @SuppressWarnings("StaticMethodNamingConvention")
     private static PossibleCourses getPossibleCoursesForSpecificSnake(boolean[][] allSnake, Coords lastSnake) {
         final PossibleCourses possibleCourses = new PossibleCourses();
 

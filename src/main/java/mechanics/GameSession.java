@@ -31,10 +31,10 @@ public class GameSession {
     private Coords lastBlue;
 
     public GameSession(long user1, long user2) {
-        final GameUser gameUser1 = new GameUser(user1);
+        final GameUser gameUser1 = new GameUser(user1, Snake.BLUE);
         gameUser1.setEnemyId(user2);
 
-        final GameUser gameUser2 = new GameUser(user2);
+        final GameUser gameUser2 = new GameUser(user2, Snake.RED);
         gameUser2.setEnemyId(user1);
 
         users.put(user1, gameUser1);
