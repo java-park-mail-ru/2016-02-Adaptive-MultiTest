@@ -26,9 +26,9 @@ public class GameSession {
 
     private final boolean[][] allBlue;
 
-    private final Coords lastRed;
+    private Coords lastRed;
 
-    private final Coords lastBlue;
+    private Coords lastBlue;
 
     public GameSession(long user1, long user2) {
         final GameUser gameUser1 = new GameUser(user1);
@@ -77,17 +77,11 @@ public class GameSession {
 
     public Coords getLastRed() { return lastRed; }
 
-    public void setLastRed(Coords lastRed) {
-        this.lastRed.setX(lastRed.getX());
-        this.lastRed.setY(lastRed.getY());
-    }
+    public void setLastRed(Coords lastRed) { this.lastRed = new Coords(lastRed.getX(), lastRed.getY()); }
 
     public Coords getLastBlue() { return lastBlue; }
 
-    public void setLastBlue(Coords lastBlue) {
-        this.lastBlue.setX(lastBlue.getX());
-        this.lastBlue.setY(lastBlue.getY());
-    }
+    public void setLastBlue(Coords lastBlue) { this.lastBlue = new Coords(lastBlue.getX(), lastBlue.getY()); }
 
     public void occupyBlue(Coords coords) { allBlue[coords.getX()][coords.getY()] = true; }
 

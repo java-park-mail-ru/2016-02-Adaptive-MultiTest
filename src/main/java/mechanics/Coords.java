@@ -7,9 +7,9 @@ package mechanics;
 public class Coords {
     public static final Coords INVALID = new Coords(-1, -1);
 
-    private int x;
+    private final int x;
 
-    private int y;
+    private final int y;
 
     public Coords() {
         x = -1;
@@ -23,11 +23,7 @@ public class Coords {
 
     public int getX() { return x; }
 
-    public void setX(int x) { this.x = x; }
-
     public int getY() { return y; }
-
-    public void setY(int y) { this.y = y; }
 
     @Override
     public boolean equals(Object o) {

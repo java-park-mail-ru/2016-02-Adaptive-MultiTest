@@ -4,13 +4,13 @@ package mechanics;
  * Created by Sasha on 05.04.16.
  */
 public class PossibleCourses {
-    private final Coords left;
+    private Coords left;
 
-    private final Coords right;
+    private Coords right;
 
-    private final Coords top;
+    private Coords top;
 
-    private final Coords bottom;
+    private Coords bottom;
 
     public PossibleCourses() {
         left = new Coords(-1, -1);
@@ -22,30 +22,22 @@ public class PossibleCourses {
     public Coords getLeft() { return left; }
 
     public void setLeft(Coords left) {
-        this.left.setX(left.getX());
-        this.left.setY(left.getY());
+        this.left = new Coords(left.getX(), left.getY());
     }
 
     public Coords getRight() { return right; }
 
     public void setRight(Coords right) {
-        this.right.setX(right.getX());
-        this.right.setY(right.getY());
+        this.right = new Coords(right.getX(), right.getY());
     }
 
     public Coords getTop() { return top; }
 
-    public void setTop(Coords top) {
-        this.top.setX(top.getX());
-        this.top.setY(top.getY());
-    }
+    public void setTop(Coords top) { this.top = new Coords(top.getX(), top.getY()); }
 
     public Coords getBottom() { return bottom; }
 
-    public void setBottom(Coords bottom) {
-        this.bottom.setX(bottom.getX());
-        this.bottom.setY(bottom.getY());
-    }
+    public void setBottom(Coords bottom) { this.bottom = new Coords(bottom.getX(), bottom.getY()); }
 
 }
 
