@@ -56,17 +56,18 @@ public class GameWebSocket {
         return myId;
     }
 
-    public void startGame(@NotNull GameUser user, Coords red, Coords blue) {
+    public void startGame(@NotNull GameUser user, Coords red, Coords blue, String myColor) {
         try {
+            final UserDataSet me = accountService.getUser(user.getMyId());
             final UserDataSet enemy = accountService.getUser(user.getEnemyId());
 
             final ObjectNode jsonStart = new ObjectNode(factory);
             jsonStart.put("status", "start");
+            jsonStart.put("myName", me.getLogin());
             jsonStart.put("enemyName", enemy.getLogin());
-            jsonStart.put("redx", red.getX());
-            jsonStart.put("redy", red.getY());
-            jsonStart.put("bluex", blue.getX());
-            jsonStart.put("bluey", blue.getY());
+            jsonStart.put("color", myColor);
+            jsonStart.put("firstRed", mapper.valueToTree(red));
+            jsonStart.put("firstBlue", mapper.valueToTree(blue));
 
             if (session != null && session.isOpen())
                 session.getRemote().sendString(jsonStart.toString());
@@ -75,9 +76,10 @@ public class GameWebSocket {
         }
     }
 
-    public void sendPossibleCourses(PossibleCourses possibleCourses) {
+    public void sendPossibleCourses(PossibleCourses possibleCourses, Coords enemyMove) {
         try {
             final ObjectNode jsonPossibleCourses = mapper.valueToTree(possibleCourses);
+            jsonPossibleCourses.put("enemyMove", mapper.valueToTree(enemyMove));
             jsonPossibleCourses.put("status", "move");
 
             if (session != null && session.isOpen())

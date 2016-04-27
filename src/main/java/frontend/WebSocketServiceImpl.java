@@ -23,13 +23,13 @@ public class WebSocketServiceImpl implements WebSocketService{
     public void removeUser(GameWebSocket user) { userSockets.remove(user.getMyId()); }
 
     @Override
-    public void notifyStartGame(GameUser user, Coords red, Coords blue) {
-        userSockets.get(user.getMyId()).startGame(user, red, blue);
+    public void notifyStartGame(GameUser user, Coords red, Coords blue, String myColor) {
+        userSockets.get(user.getMyId()).startGame(user, red, blue, myColor);
     }
 
     @Override
-    public void notifyMove(GameUser user, PossibleCourses possibleCourses) {
-        userSockets.get(user.getMyId()).sendPossibleCourses(possibleCourses);
+    public void notifyMove(GameUser user, PossibleCourses possibleCourses, Coords enemyMove) {
+        userSockets.get(user.getMyId()).sendPossibleCourses(possibleCourses, enemyMove);
     }
 
     @Override

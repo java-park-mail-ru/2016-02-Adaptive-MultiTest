@@ -90,7 +90,7 @@ public class GameMechanicsImpl implements GameMechanics {
         }
 
         webSocketService.notifyWait(myUser);
-        webSocketService.notifyMove(enemyUser, possibleCourses);
+        webSocketService.notifyMove(enemyUser, possibleCourses, coords);
 
     }
 
@@ -128,8 +128,8 @@ public class GameMechanicsImpl implements GameMechanics {
         while (blue.getX() == red.getX() && blue.getY() == red.getY())
             blue = getRandomCoords();
 
-        webSocketService.notifyStartGame(game.getSelf(first), red, blue);
-        webSocketService.notifyStartGame(game.getSelf(second), red, blue);
+        webSocketService.notifyStartGame(game.getSelf(first), red, blue, "blue");
+        webSocketService.notifyStartGame(game.getSelf(second), red, blue, "red");
 
         Move.occupy(blue, game);
         move(red, second);

@@ -13,9 +13,9 @@ public interface WebSocketService {
 
     void removeUser(GameWebSocket user);
 
-    void notifyStartGame(@Nullable GameUser user, Coords red, Coords blue);
+    void notifyStartGame(@Nullable GameUser user, Coords red, Coords blue, String myColor);
 
-    void notifyMove(GameUser user, PossibleCourses possibleCourses);
+    void notifyMove(GameUser user, PossibleCourses possibleCourses, Coords enemyMove);
 
     void notifyWait(GameUser user);
 
