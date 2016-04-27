@@ -5,7 +5,7 @@ import base.GameMechanics;
 import base.GameUser;
 import base.WebSocketService;
 import base.dataSets.UserDataSet;
-import com.sun.istack.internal.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.JsonNodeFactory;
@@ -133,7 +133,7 @@ public class GameWebSocket {
     }
 
     public void reportUnexpectedEnemyExit() {
-        sendError("UnexpectedEnemyExit");
+        sendError("unexpectedEnemyExit");
         onClose(rightExitCode, "");
         session.close();
     }

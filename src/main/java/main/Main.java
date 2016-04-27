@@ -35,7 +35,6 @@ import java.util.Set;
 public class Main {
     public static void main(String[] args) throws Exception {
         final String cfgPath = new File("").getAbsolutePath() + "/cfg/";
-        //final URL cfgPath = Main.class.getResource("/cfg/");
         final Properties serverProperties = new Properties();
         final Properties dbProperties = new Properties();
         try {
