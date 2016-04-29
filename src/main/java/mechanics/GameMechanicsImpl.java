@@ -77,7 +77,7 @@ public class GameMechanicsImpl implements GameMechanics {
         final GameUser myUser = game.getSelf(userId);
         final GameUser enemyUser = game.getEnemy(userId);
 
-        if (myUser.getMyColor() == game.getSnake()) {
+        if (myUser.getMyColor() != game.getSnake()) {
             webSocketService.notifyError(myUser, "enemy`s turn");
             return;
         }
@@ -152,7 +152,6 @@ public class GameMechanicsImpl implements GameMechanics {
         webSocketService.notifyStartGame(game.getSelf(second), red, blue, "red");
 
         Move.occupy(blue, game);
-        Move.occupy(red, game);
         move(red, second, true);
     }
 
