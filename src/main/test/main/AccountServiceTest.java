@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import testHelpers.DBFiller;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -39,9 +40,10 @@ public class AccountServiceTest {
 
     @BeforeClass
     public static void setUp() throws IOException {
+        final String cfgPath = new File("").getAbsolutePath() + "/cfg/";
         final Properties dbProperties = new Properties();
         try {
-            final FileInputStream fis = new FileInputStream("src/main/java/main.cfg/db.properties");
+            final FileInputStream fis = new FileInputStream(cfgPath + "db.properties");
             dbProperties.load(fis);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
