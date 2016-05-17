@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8a59c310-a466-4000-87b9-cec478460d33" name="Default" comment="tests fixed">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/test/testHelpers/DBFiller.java" afterPath="" />
+    <list default="true" id="8a59c310-a466-4000-87b9-cec478460d33" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/frontend/GameWebSocket.java" afterPath="$PROJECT_DIR$/src/main/java/frontend/GameWebSocket.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/Main.java" afterPath="$PROJECT_DIR$/src/main/java/main/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/test/frontend/rest/AuthorizedServletTest.java" afterPath="$PROJECT_DIR$/src/main/test/frontend/rest/AuthorizedServletTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/test/frontend/rest/NonAuthorizedServletTest.java" afterPath="$PROJECT_DIR$/src/main/test/frontend/rest/NonAuthorizedServletTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/test/main/AccountServiceTest.java" afterPath="$PROJECT_DIR$/src/main/test/main/AccountServiceTest.java" />
     </list>
     <ignored path="2016-02-Adaptive-MultiTest.iws" />
     <ignored path=".idea/workspace.xml" />
