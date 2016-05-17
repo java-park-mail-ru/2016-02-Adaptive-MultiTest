@@ -132,6 +132,7 @@ public class GameWebSocket {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     public void reportUnexpectedEnemyExit() {
         sendError("unexpectedEnemyExit");
         onClose(rightExitCode, "");

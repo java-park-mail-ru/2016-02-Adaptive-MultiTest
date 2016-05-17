@@ -16,6 +16,7 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Projections;
 import org.hibernate.service.ServiceRegistry;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -29,7 +30,7 @@ import javax.ws.rs.core.Response;
 
 import helpers.Context;
 import org.junit.runners.MethodSorters;
-import testHelpers.DBFiller;
+import testHelpers.DBCleaner;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,12 +44,18 @@ import static org.junit.Assert.assertEquals;
  */
 @FixMethodOrder(MethodSorters.JVM)
 public class NonAuthorizedServletTest extends JerseyTest {
+    private static AccountService accountService;
+
     private static SessionFactory sessionFactory;
+
+    private static UserDataSet admin;
+
+    private static UserDataSet guest;
 
     private static String dbName;
 
     @BeforeClass
-    public static void fillDB() {
+    public static void connect() {
         final String cfgPath = new File("").getAbsolutePath() + "/cfg/";
         final Properties dbProperties = new Properties();
         //noinspection OverlyBroadCatchBlock
@@ -60,10 +67,29 @@ public class NonAuthorizedServletTest extends JerseyTest {
         }
 
         dbName = dbProperties.getProperty("test_db.name");
+        accountService = new AccountServiceImpl(dbName);
+
         final Configuration configuration = Config.getHibernateConfiguration(dbName, true);
         sessionFactory = createSessionFactory(configuration);
-        DBFiller.fillDB(sessionFactory);
+
+        admin = new UserDataSet();
+        admin.setLogin("admin");
+        admin.setEmail("admin@admin");
+        admin.setPassword("admin");
+
+        guest = new UserDataSet();
+        guest.setLogin("guest");
+        guest.setEmail("guest@guest");
+        guest.setPassword("12345");
     }
+
+    @Before
+    public void fillDB() {
+        DBCleaner.clearDB(sessionFactory);
+        accountService.addUser(admin);
+        accountService.addUser(guest);
+    }
+
 
     @Override
     protected Application configure() {

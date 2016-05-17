@@ -25,7 +25,7 @@ import javax.ws.rs.core.Response;
 
 import helpers.Context;
 import org.junit.runners.MethodSorters;
-import testHelpers.DBFiller;
+import testHelpers.DBCleaner;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,12 +40,18 @@ import static org.junit.Assert.assertEquals;
 @SuppressWarnings("DefaultFileTemplate")
 @FixMethodOrder(MethodSorters.JVM)
 public class AuthorizedServletTest extends JerseyTest {
+    private static AccountService accountService;
+
     private static SessionFactory sessionFactory;
+
+    private static UserDataSet admin;
+
     private static UserDataSet guest;
+
     private static String dbName;
 
     @BeforeClass
-    public static void fillDB() throws IOException {
+    public static void connect() throws IOException {
         final String cfgPath = new File("").getAbsolutePath() + "/cfg/";
         final Properties dbProperties = new Properties();
         try {
@@ -56,15 +62,30 @@ public class AuthorizedServletTest extends JerseyTest {
         }
 
         dbName = dbProperties.getProperty("test_db.name");
+        accountService = new AccountServiceImpl(dbName);
+
         final Configuration configuration = Config.getHibernateConfiguration(dbName, true);
         sessionFactory = createSessionFactory(configuration);
-        DBFiller.fillDB(sessionFactory);
+
+        admin = new UserDataSet();
+        admin.setLogin("admin");
+        admin.setEmail("admin@admin");
+        admin.setPassword("admin");
 
         guest = new UserDataSet();
         guest.setLogin("guest");
         guest.setEmail("guest@guest");
         guest.setPassword("12345");
     }
+
+    @Before
+    public void fillDB() {
+        DBCleaner.clearDB(sessionFactory);
+        accountService.addUser(admin);
+        accountService.addUser(guest);
+        target("session").request().put(Entity.json(guest));
+    }
+
 
     @SuppressWarnings("AnonymousInnerClassMayBeStatic")
     @Override
@@ -89,11 +110,6 @@ public class AuthorizedServletTest extends JerseyTest {
         });
 
         return config;
-    }
-
-    @Before
-    public void guestSignIn() {
-        target("session").request().put(Entity.json(guest));
     }
 
     @Test

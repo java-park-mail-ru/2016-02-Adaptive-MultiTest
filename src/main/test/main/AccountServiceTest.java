@@ -9,11 +9,12 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import testHelpers.DBFiller;
+import testHelpers.DBCleaner;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,7 +40,7 @@ public class AccountServiceTest {
     private static UserDataSet guest;
 
     @BeforeClass
-    public static void setUp() throws IOException {
+    public static void connect() throws IOException {
         final String cfgPath = new File("").getAbsolutePath() + "/cfg/";
         final Properties dbProperties = new Properties();
         try {
@@ -54,19 +55,28 @@ public class AccountServiceTest {
 
         final Configuration configuration = Config.getHibernateConfiguration(dbName, true);
         sessionFactory = createSessionFactory(configuration);
-        DBFiller.fillDB(sessionFactory);
 
         admin = new UserDataSet();
         admin.setId(1);
         admin.setLogin("admin");
         admin.setEmail("admin@admin");
         admin.setPassword("admin");
+
         guest = new UserDataSet();
         guest.setId(2);
         guest.setLogin("guest");
         guest.setEmail("guest@guest");
         guest.setPassword("12345");
     }
+
+    @Before
+    public void fillDB() {
+        DBCleaner.clearDB(sessionFactory);
+        accountService.addUser(admin);
+        accountService.addUser(guest);
+        accountService.addSession("session", guest);
+    }
+
 
     @Test
     public void testGetAllUsers() {
@@ -102,9 +112,9 @@ public class AccountServiceTest {
     @Test
     public void testAddUserExistsFail() {
         final UserDataSet newUser = new UserDataSet();
-        newUser.setLogin("guest");
-        newUser.setEmail("guest@guest");
-        newUser.setPassword("testtest");
+        newUser.setLogin("admin");
+        newUser.setEmail("admin@admin");
+        newUser.setPassword("admin");
         final long newUserId = accountService.addUser(newUser);
 
         assertEquals(-1, newUserId);
@@ -190,8 +200,8 @@ public class AccountServiceTest {
     @Test
     public void testIsValidUserValid() {
         final UserDataSet validUser = new UserDataSet();
-        validUser.setLogin("guestee");
-        validUser.setPassword("1234567");
+        validUser.setLogin("admin");
+        validUser.setPassword("admin");
         assertTrue(accountService.isValidUser(validUser));
     }
 
@@ -208,7 +218,6 @@ public class AccountServiceTest {
 
     @Test
     public void testDeleteSession() {
-        accountService.addSession("session", guest);
         accountService.deleteSession("session");
         final Map<String, UserDataSet> sessions = accountService.getSessions();
         assertFalse(sessions.containsValue(guest));
