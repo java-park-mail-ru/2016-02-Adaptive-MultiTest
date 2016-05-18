@@ -3,11 +3,15 @@ package accountService;
 import accountService.dao.UserDataSetDAO;
 import base.AccountService;
 import base.dataSets.UserDataSet;
+import helpers.Config;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,79 +25,120 @@ public class AccountServiceImpl implements AccountService{
 
     private final SessionFactory sessionFactory;
 
-    public AccountServiceImpl() {
-        Configuration configuration = new Configuration();
-        configuration.addAnnotatedClass(UserDataSet.class);
-
-        configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-        configuration.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
-        configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/MultiTest");
-        configuration.setProperty("hibernate.connection.username", "mtestuser");
-        configuration.setProperty("hibernate.connection.password", "secret");
-        configuration.setProperty("hibernate.show_sql", "true");
-
+    public AccountServiceImpl(String dbName) {
+        final Configuration configuration = Config.getHibernateConfiguration(dbName, false);
         sessionFactory = createSessionFactory(configuration);
     }
 
+    @Nullable
     @Override
     public List<UserDataSet> getAllUsers() {
         try (Session session = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(session);
-            return dao.getAllUsers();
+            try{
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                return dao.getAllUsers();
+            } catch (HibernateException e) {
+                e.printStackTrace();
+            }
         }
+        return null;
     }
 
     @Override
     public long addUser(UserDataSet user) {
         try ( Session session = sessionFactory.openSession() ) {
-            UserDataSetDAO dao = new UserDataSetDAO(session);
-            if (dao.getUserByLogin(user.getLogin()) != null || dao.getUserByEmail(user.getEmail()) != null) {
-                return -1;
-            } else {
+            if (getUserByEmail(user.getEmail()) != null || getUserByLogin(user.getLogin()) != null) return -1;
+            final Transaction trx = session.beginTransaction();
+            try {
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
                 dao.addUser(user);
-                return dao.getUserByLogin(user.getLogin()).getId();
+                trx.commit();
+                return user.getId();
+            } catch (HibernateException e) {
+                e.printStackTrace();
+                trx.rollback();
+                return -1;
             }
         }
     }
 
+    @Nullable
     @Override
     public UserDataSet getUser(long userId) {
         try (Session session = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(session);
-            return dao.getUser(userId);
+            final UserDataSet idUser;
+            try {
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                idUser = dao.getUser(userId);
+            } catch (HibernateException e) {
+                e.printStackTrace();
+                return null;
+            }
+            return idUser;
         }
     }
 
+    @Nullable
     @Override
     public UserDataSet getUserByLogin(String login) {
         try (Session session = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(session);
-            return dao.getUserByLogin(login);
+            final UserDataSet loginUser;
+            try {
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                loginUser = dao.getUserByLogin(login);
+            } catch (HibernateException e) {
+                e.printStackTrace();
+                return null;
+            }
+            return loginUser;
         }
     }
 
+    @Nullable
     @Override
     public UserDataSet getUserByEmail(String email) {
         try (Session session = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(session);
-            return dao.getUserByEmail(email);
+            final UserDataSet emailUser;
+            try {
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                emailUser = dao.getUserByEmail(email);
+            } catch (HibernateException e) {
+                e.printStackTrace();
+                return null;
+            }
+            return emailUser;
         }
     }
 
     @Override
     public long updateUser(UserDataSet updatedUser, long userId) {
         try (Session session = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(session);
-            dao.updateUser(updatedUser, userId);
-            return userId;
+            final Transaction trx = session.beginTransaction();
+            try {
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                dao.updateUser(updatedUser, userId);
+                trx.commit();
+                return userId;
+            } catch (HibernateException e) {
+                e.printStackTrace();
+                trx.rollback();
+                return  -1;
+            }
         }
     }
 
     @Override
     public void deleteUser(long userId) {
         try (Session session = sessionFactory.openSession()) {
-            UserDataSetDAO dao = new UserDataSetDAO(session);
-            dao.deleteUser(userId);
+            final Transaction trx = session.beginTransaction();
+            try {
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                dao.deleteUser(userId);
+                trx.commit();
+            } catch (HibernateException e) {
+                e.printStackTrace();
+                trx.rollback();
+            }
         }
     }
 
@@ -108,7 +153,7 @@ public class AccountServiceImpl implements AccountService{
 
     @Override
     public boolean isValidUser(UserDataSet user) {
-        UserDataSet actualUser = getUserByLogin(user.getLogin());
+        final UserDataSet actualUser = getUserByLogin(user.getLogin());
         return (actualUser != null && actualUser.getPassword().equals(user.getPassword()));
     }
 
@@ -117,15 +162,42 @@ public class AccountServiceImpl implements AccountService{
 
     public Map<String, UserDataSet> getSessions() { return sessions; }
 
-    @SuppressWarnings("unused")
-    public void shutdown() {
-        sessionFactory.close();
+    @Nullable
+    @Override
+    public List<UserDataSet> getTopPlayers() {
+        try (Session session = sessionFactory.openSession()) {
+            try{
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                return dao.getTopPlayers();
+            } catch (HibernateException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Override
+    public void setUserScore(long id) {
+        final UserDataSet user = getUser(id);
+        try (Session session = sessionFactory.openSession()) {
+            final Transaction trx = session.beginTransaction();
+            try {
+                final UserDataSetDAO dao = new UserDataSetDAO(session);
+                final int score = dao.getUser(user.getId()).getScore();
+                dao.setUserScore(user, score + 1);
+                trx.commit();
+            } catch (HibernateException e) {
+                e.printStackTrace();
+                trx.rollback();
+            }
+        }
     }
 
     private static SessionFactory createSessionFactory(Configuration configuration) {
-        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
+        final StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
         builder.applySettings(configuration.getProperties());
-        ServiceRegistry serviceRegistry = builder.build();
+        final ServiceRegistry serviceRegistry = builder.build();
         return configuration.buildSessionFactory(serviceRegistry);
     }
 

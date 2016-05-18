@@ -7,7 +7,6 @@ import java.util.List;
 /**
  * @author a.serebrennikova
  */
-@SuppressWarnings("SameParameterValue")
 public interface AccountService {
     List<UserDataSet> getAllUsers();
 
@@ -33,4 +32,8 @@ public interface AccountService {
     boolean isValidUser(UserDataSet user);
 
     void deleteSession(String sessionId);
+
+    List<UserDataSet> getTopPlayers();
+
+    void setUserScore(long id);
 }

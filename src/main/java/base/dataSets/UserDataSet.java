@@ -7,7 +7,7 @@ import javax.persistence.*;
 /**
  * Created by Sasha on 27.03.16.
  */
-@SuppressWarnings({"SameParameterValue", "DefaultFileTemplate"})
+@SuppressWarnings({"DefaultFileTemplate", "NullableProblems"})
 @Entity
 @Table(name = "User")
 public class UserDataSet {
@@ -16,15 +16,23 @@ public class UserDataSet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "login")
+    @Column(name = "login", unique = true)
+    @NotNull
     private String login;
 
     @Column(name="password")
+    @NotNull
     private String password;
 
-    @Column(name="email")
+    @Column(name="email", unique = true)
+    @NotNull
     private String email;
 
+    @Column(name="score")
+    @NotNull
+    private int score;
+
+    @SuppressWarnings("RedundantNoArgConstructor")
     public UserDataSet() {
     }
 
@@ -55,18 +63,32 @@ public class UserDataSet {
 
     public void setEmail(@NotNull String email) { this.email = email; }
 
+    public int getScore() { return score; }
+
+    public void setScore(int score) { this.score = score; }
+
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null) return false;
-        if (this.getClass() != obj.getClass()) return false;
-        UserDataSet other = (UserDataSet) obj;
-        return this.id == other.getId() && this.login.equals(other.getLogin()) && this.email.equals(other.getEmail())
-                && this.password.equals(other.getPassword());
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        //noinspection QuestionableName
+        final UserDataSet that = (UserDataSet) o;
+
+        if (id != that.id) return false;
+        if (!login.equals(that.login)) return false;
+        // noinspection SimplifiableIfStatement
+        if (!password.equals(that.password)) return false;
+        return email.equals(that.email);
+
     }
 
     @Override
-    public int hashCode()
-    {
-        return 76+133*login.hashCode();
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + login.hashCode();
+        result = 31 * result + password.hashCode();
+        result = 31 * result + email.hashCode();
+        return result;
     }
 }
